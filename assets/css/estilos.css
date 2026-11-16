@@ -1956,30 +1956,30 @@ button, [role="button"], .agregar, .categorias a, .pastilla, .segmentado label, 
 .horario .plegable { margin-top: -0.7rem; } /* cerrada no deja el hueco del gap */
 .horario .plegable--abierto { margin-top: 0; }
 .horario__pliegue .horario__titulo { margin-top: 0.15rem; }
-.rueda {
+.rueda-hora {
   --alto: 2.75rem;
   position: relative; display: flex; justify-content: center; align-items: center; gap: 0.15rem;
   width: 100%; height: calc(var(--alto) * 5); margin-top: 0.35rem;
   user-select: none; -webkit-user-select: none;
 }
-.rueda__banda { position: absolute; left: 0; right: 0; top: calc(var(--alto) * 2); height: var(--alto); border-radius: 14px; background: var(--mesa); pointer-events: none; }
-.rueda__col {
+.rueda-hora__banda { position: absolute; left: 0; right: 0; top: calc(var(--alto) * 2); height: var(--alto); border-radius: 14px; background: var(--mesa); pointer-events: none; }
+.rueda-hora__col {
   position: relative; width: 4.5rem; height: 100%;
   overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none;
   touch-action: pan-y; perspective: 32rem; border-radius: 14px; outline: none;
   -webkit-mask-image: linear-gradient(transparent, #000 34%, #000 66%, transparent);
   mask-image: linear-gradient(transparent, #000 34%, #000 66%, transparent);
 }
-.rueda__col::-webkit-scrollbar { display: none; }
-.rueda__col:focus-visible { box-shadow: inset 0 0 0 2px var(--tinta); -webkit-mask-image: none; mask-image: none; }
-.rueda__col ul { list-style: none; margin: 0; padding: calc(var(--alto) * 2) 0; }
-.rueda__col li {
+.rueda-hora__col::-webkit-scrollbar { display: none; }
+.rueda-hora__col:focus-visible { box-shadow: inset 0 0 0 2px var(--tinta); -webkit-mask-image: none; mask-image: none; }
+.rueda-hora__col ul { list-style: none; margin: 0; padding: calc(var(--alto) * 2) 0; }
+.rueda-hora__col li {
   height: var(--alto); display: grid; place-items: center; scroll-snap-align: center;
   font-size: 1.375rem; font-weight: 500; font-variant-numeric: tabular-nums; cursor: pointer;
   backface-visibility: hidden;
 }
-.rueda__col li.rueda__no { color: rgb(23 18 15 / 0.28); }
-.rueda__sep { position: relative; width: 0.6rem; text-align: center; font-size: 1.375rem; font-weight: 500; }
-.rueda__ampm { position: relative; width: 3rem; padding-left: 0.4rem; font-size: 1.0625rem; font-weight: 500; color: var(--tinta-suave); }
-.rueda__nota { margin-top: 0.35rem; text-align: center; font-size: 0.8125rem; color: var(--tinta-suave); }
-@media (prefers-reduced-motion: reduce) { .rueda__col li { transform: none !important; } }
+.rueda-hora__col li.rueda-hora__no { color: rgb(23 18 15 / 0.28); }
+.rueda-hora__sep { position: relative; width: 0.6rem; text-align: center; font-size: 1.375rem; font-weight: 500; }
+.rueda-hora__ampm { position: relative; width: 3rem; padding-left: 0.4rem; font-size: 1.0625rem; font-weight: 500; color: var(--tinta-suave); }
+.rueda-hora__nota { margin-top: 0.35rem; text-align: center; font-size: 0.8125rem; color: var(--tinta-suave); }
+@media (prefers-reduced-motion: reduce) { .rueda-hora__col li { transform: none !important; } }

@@ -1913,14 +1913,14 @@
       <div class="plegable horario__pliegue" data-horario-pliegue inert>
         <div class="plegable__interior">
           <p class="horario__titulo">Hora</p>
-          <div class="rueda" data-rueda data-sin-arrastre>
-            <div class="rueda__banda" aria-hidden="true"></div>
-            <div class="rueda__col" data-rueda-col="h" tabindex="0" role="spinbutton" aria-label="Hora"><ul aria-hidden="true"></ul></div>
-            <span class="rueda__sep" aria-hidden="true">:</span>
-            <div class="rueda__col" data-rueda-col="m" tabindex="0" role="spinbutton" aria-label="Minutos"><ul aria-hidden="true">${MINUTOS.map((m) => `<li data-v="${m}">${String(m).padStart(2, "0")}</li>`).join("")}</ul></div>
-            <span class="rueda__ampm" aria-hidden="true" data-rueda-ampm>pm</span>
+          <div class="rueda-hora" data-rueda data-sin-arrastre>
+            <div class="rueda-hora__banda" aria-hidden="true"></div>
+            <div class="rueda-hora__col" data-rueda-col="h" tabindex="0" role="spinbutton" aria-label="Hora"><ul aria-hidden="true"></ul></div>
+            <span class="rueda-hora__sep" aria-hidden="true">:</span>
+            <div class="rueda-hora__col" data-rueda-col="m" tabindex="0" role="spinbutton" aria-label="Minutos"><ul aria-hidden="true">${MINUTOS.map((m) => `<li data-v="${m}">${String(m).padStart(2, "0")}</li>`).join("")}</ul></div>
+            <span class="rueda-hora__ampm" aria-hidden="true" data-rueda-ampm>pm</span>
           </div>
-          <p class="rueda__nota" data-rueda-nota></p>
+          <p class="rueda-hora__nota" data-rueda-nota></p>
         </div>
       </div>
       <small class="campo__error" data-error="horario"></small>`;
@@ -2058,7 +2058,7 @@
     }
     const h = Math.floor(horario.hora / 60);
     const mm = horario.hora % 60;
-    $$("li", colM).forEach((li) => li.classList.toggle("rueda__no", !horas.includes(h * 60 + Number(li.dataset.v))));
+    $$("li", colM).forEach((li) => li.classList.toggle("rueda-hora__no", !horas.includes(h * 60 + Number(li.dataset.v))));
     colH.setAttribute("aria-valuetext", `${h % 12 || 12} ${h < 12 ? "am" : "pm"}`);
     colH.setAttribute("aria-valuenow", String(h));
     colM.setAttribute("aria-valuetext", `${mm} minutos`);
