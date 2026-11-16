@@ -300,15 +300,14 @@
     }).join(" · ");
   }
   /* Foto propia de lo elegido, nunca la de otro sabor. Si el producto tiene fotos por sabor (o por tipo),
-     solo vale la del valor elegido: un sabor sin foto (o una mezcla de dos sabores) no tiene foto y
-     se muestra a Misifu con "Pronto su foto". Sin fotos por sabor, vale la foto del producto. */
+     solo vale la del valor elegido: un sabor sin foto se muestra con Misifu y "Pronto su foto".
+     Al mezclar dos sabores (alitas) vale la foto del primer sabor elegido, si la tiene.
+     Sin fotos por sabor, vale la foto del producto. */
   function fotoDe(p, eleccion = {}) {
     const conFotos = p.opciones.filter((o) => o.valores.some((v) => v.foto));
     if (!conFotos.length) return p.foto ? { src: p.foto } : null;
     for (const op of conFotos) {
-      const elegido = eleccion[op.id];
-      if (Array.isArray(elegido) && elegido.length > 1) return null; // mezcla: no hay una foto propia
-      const v = op.valores.find((x) => x.id === valorElegido(eleccion, op.id));
+      const v = op.valores.find((x) => x.id === valorElegido(eleccion, op.id)); // en una mezcla, el primero
       if (v?.foto) return { src: v.foto };
     }
     return null;

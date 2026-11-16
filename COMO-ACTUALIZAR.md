@@ -147,7 +147,7 @@ Edítalo en GitHub: abre el archivo, pulsa el lápiz ✏️, cambia y pulsa **Co
   - Súbela a la carpeta `assets/img/productos/` con nombre en minúsculas, sin tildes ni espacios. Ejemplo: `assets/img/productos/cheesecake-de-fresa.jpg`.
   - Agrega `"foto": "assets/img/productos/cheesecake-de-fresa.jpg"` al producto.
   - Si es la foto de un sabor, ponla dentro de ese sabor, en `"valores"`.
-  - Cada sabor muestra solo su propia foto. Un sabor sin foto muestra a Misifu con "Pronto su foto", aunque otro sabor del mismo producto sí tenga foto. Mezclar dos sabores (alitas) también muestra a Misifu.
+  - Cada sabor muestra solo su propia foto. Un sabor sin foto muestra a Misifu con "Pronto su foto", aunque otro sabor del mismo producto sí tenga foto. Al mezclar dos sabores (alitas) se muestra la foto del primer sabor elegido, si la tiene; si no, Misifu.
 - **Los más pedidos:** se editan en la lista `"masPedidos"`. Ahí van el producto, el sabor u opción ya elegido y el nombre que se muestra.
 - **Días de anticipación:**
   - Se definen por categoría: `"anticipacion": 7` en Tortas y postres familiares, `10` en eventos y bocaditos y `2` en Boxes y regalos.
