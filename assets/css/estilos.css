@@ -416,17 +416,6 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
 
 .eventos :focus-visible { outline-color: var(--lila); }
 .cotizar { display: grid; gap: 1.1rem; padding: clamp(1.25rem, 3vw, 2rem); border-radius: var(--r-foto); background: var(--chicha-hondo); }
-.cotizar__tipo { border: 0; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
-.cotizar__tipo legend { font-size: 0.875rem; color: var(--lila); margin-bottom: 0.6rem; padding: 0; }
-.cotizar__tipo label { position: relative; }
-.cotizar__tipo input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
-.cotizar__tipo span {
-  display: inline-flex; align-items: center; min-height: 2.5rem; padding: 0 1rem;
-  border-radius: var(--r-pastilla); border: 1px solid rgb(234 216 230 / 0.45); font-size: 0.9375rem;
-  transition: background-color 0.2s, color 0.2s;
-}
-.cotizar__tipo input:checked + span { background: var(--papel); color: var(--chicha-hondo); border-color: var(--papel); }
-.cotizar__tipo input:focus-visible + span { outline: 2px solid var(--lila); outline-offset: 2px; }
 .cotizar__fila { display: grid; gap: 1.1rem; }
 @media (min-width: 36rem) { .cotizar__fila { grid-template-columns: 1fr 1fr; } }
 .cotizar .campo span { color: var(--lila); }
@@ -1003,12 +992,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pedido__hoja { transition: transform 0.25s cubic-bezier(0.4, 0, 1, 1) !important; }
 .pedido.abierto .pedido__hoja { transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important; }
 
-/* ---------- Me gustaría... (varias opciones) ---------- */
-.cotizar__tipo legend small { font-size: 0.8125rem; color: var(--lila); opacity: 0.85; margin-left: 0.35rem; }
-.cotizar__tipo input:checked + span::before {
-  content: ""; width: 0.45rem; height: 0.7rem; margin-right: 0.5rem; margin-bottom: 0.15rem;
-  border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg);
-}
 
 /* ---------- Foto referencial (sabor sin foto propia) ---------- */
 .foto-ref {
@@ -1983,3 +1966,34 @@ button, [role="button"], .agregar, .categorias a, .pastilla, .segmentado label, 
 .rueda-hora__ampm { position: relative; width: 3rem; padding-left: 0.4rem; font-size: 1.0625rem; font-weight: 500; color: var(--tinta-suave); }
 .rueda-hora__nota { margin-top: 0.35rem; text-align: center; font-size: 0.8125rem; color: var(--tinta-suave); }
 @media (prefers-reduced-motion: reduce) { .rueda-hora__col li { transform: none !important; } }
+
+/* =========================================================
+   Celebración en tres pasos: Arma tu evento, Cuéntanos tu idea y Datos del evento
+   ========================================================= */
+.paso-evento { display: grid; gap: 1.1rem; }
+.paso-evento--armar { gap: 1rem; }
+/* Título de cada paso (escalón "title" de DESIGN.md); el número va en lila, más chico */
+.paso-evento__titulo {
+  display: flex; align-items: baseline; gap: 0.6rem; margin: 0;
+  font-family: var(--display); font-weight: 500; font-size: clamp(1.75rem, 3.6vw, 2.25rem); line-height: 1.12; letter-spacing: -0.01em;
+}
+.paso-evento__titulo span { font-family: var(--texto); font-size: 1rem; font-weight: 600; color: var(--lila); font-variant-numeric: tabular-nums; }
+.cotizar .paso-evento + .paso-evento { padding-top: 1.1rem; border-top: 1px solid rgb(234 216 230 / 0.25); }
+.campo span small { font-size: 0.8125rem; font-weight: 400; letter-spacing: 0.02em; opacity: 0.85; }
+/* Avisos sobre morado: el rojo de error no se lee aquí, así que va en un tono claro */
+.campo__error--claro { color: #ffd2ca; }
+.cotizar [aria-invalid="true"] { border-color: #ffb4a8 !important; }
+.aviso--evento { background: rgb(255 255 255 / 0.1); color: var(--papel); }
+.aviso--evento[hidden] { display: none; }
+.cotizar__direccion .campo__error { display: block; padding-top: 0.4rem; }
+.cotizar__direccion .campo__error:empty { display: none; }
+/* "Recoges en": la dirección del local, con la misma animación que la dirección de entrega */
+.recoges {
+  display: flex; gap: 0.6rem; margin: 1.1rem 0 0; padding: 0.85rem 1rem;
+  border-radius: 14px; background: rgb(255 255 255 / 0.08); font-size: 0.9375rem;
+}
+.recoges svg { flex: none; width: 1.2rem; height: 1.2rem; margin-top: 0.15rem; fill: none; stroke: var(--lila); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.recoges strong { font-weight: 600; }
+.campo--fecha__ancla { position: relative; }
+.campo--fecha .aviso[hidden] { display: none; }
+.cotizar__fila { align-items: start; } /* con el aviso de fecha, el campo de personas no se estira */

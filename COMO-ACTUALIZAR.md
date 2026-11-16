@@ -85,7 +85,7 @@ Tu Google Sheets está en inglés, así que los menús van en inglés.
 | `siempre disponible` | En la carta. Se prepara al momento. | Sale **"No disponible hoy"** y no se puede pedir. | Hamburguesas, alitas, jugos, tragos |
 | `vitrina` | En la carta, como postre del día. | Sale **"Hoy se acabó · pídelo para mañana"** y se puede pedir "para otro día". En **Temporada**, si desmarcas todo, la sección desaparece de la web. | Cheesecake, muffins, cuchareables, turrón |
 | `por encargo` | En la carta, con el aviso "Por encargo · con X días de anticipación". El cliente elige el día al pedir. | Sale **"No disponible hoy"** y no se puede pedir. | Tortas familiares, cupcake personalizado, box desayuno |
-| `evento` | **No sale en la carta.** Solo en "¿Se viene una celebración?" → **Ver opciones para tu evento 🎉**. El cliente lo agrega a "Elegiste" y pide la cotización por WhatsApp. | **No se muestra** en el catálogo de eventos. Si desmarcas solo una cantidad (por ejemplo `boc-tequenos-100`), esa cantidad desaparece del panel. | Tortas para eventos y bocaditos (salados, dulces y calientes) |
+| `evento` | **No sale en la carta.** Solo en "¿Se viene una celebración?" → **Ver opciones para tu evento 🎉**. El cliente lo agrega a "Elegiste" y pide la cotización por WhatsApp. | **No se muestra** en el catálogo de eventos. Si desmarcas solo una cantidad (por ejemplo `boc-tequenos-100`), esa cantidad desaparece del panel. | Servicios (Decoración y Otro pedido especial), tortas para eventos y bocaditos (salados, dulces y calientes) |
 | `adicional` | Dentro del panel de opciones de un producto (papas, velas, frozen…). | Nada: la web ignora la casilla. | Porción de papas, velas, topper, frozen |
 
 > **Ojo:** si en la hoja ningún producto tiene tipo `evento`, el botón "Ver opciones para tu evento" no aparece y esos productos salen en la carta (la hoja manda sobre `productos.json`).
@@ -152,6 +152,7 @@ Edítalo en GitHub: abre el archivo, pulsa el lápiz ✏️, cambia y pulsa **Co
   - Se definen por categoría: `"anticipacion": 7` en Tortas y postres familiares, `10` en eventos y bocaditos y `2` en Boxes y regalos.
   - Boxes y regalos además tiene `"anticipacionMax": 7`: el calendario deja elegir desde 2 días, la web avisa que un modelo elaborado puede tomar hasta 7 y en WhatsApp la fecha va "sujeta a confirmación".
   - También se puede poner en un producto puntual, como el cupcake personalizado.
+- **Productos personalizables** (`"personalizable": true` en `productos.json`): si el cliente elige uno, "Cuéntanos tu idea" pasa a ser obligatoria al cotizar. Hoy lo son la torta temática, la mini torta personalizada de 4 porciones, Decoración y Otro pedido especial.
 - **Solo en el local:** un producto con `"soloLocal": true` (las infusiones) muestra la etiqueta "Solo en el local" y solo se puede pedir en "Reserva en el local". Si el cliente elige delivery o recojo, la web lo quita del pedido con un aviso y le ofrece volver a la reserva.
 - **Tipo de disponibilidad:**
   - Se define por categoría con `"tipo"`: `"siempre"`, `"vitrina"`, `"encargo"` o `"evento"`.

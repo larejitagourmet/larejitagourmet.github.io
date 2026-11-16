@@ -116,8 +116,9 @@
         <dl class="eventos__datos">
           <div><dt>Anticipación</dt><dd>Separa tu fecha con 10 días.</dd></div>
           <div><dt>Tortas temáticas</dt><dd>Desde S/ 280. El precio depende del diseño y la fecha.</dd></div>
-          <div><dt>Decoración</dt><dd>También la hacemos a pedido. Consúltanos.</dd></div>
         </dl>
+        <div class="paso-evento paso-evento--armar" data-paso-armar>
+          <h3 class="paso-evento__titulo"><span aria-hidden="true">1</span>Arma tu evento</h3>
         <div class="catalogo">
           <button type="button" class="boton boton--papel catalogo__boton" data-ver-eventos aria-expanded="false" aria-controls="catalogo-eventos">
             <span data-catalogo-texto>Ver opciones para tu evento</span>
@@ -155,64 +156,78 @@
             </div>
           </div>
         </div>
+          <p class="aviso aviso--evento" data-aviso-elegiste role="status" hidden>Elige al menos un producto o servicio para tu evento. Toca «Ver opciones para tu evento».</p>
+          <div class="elegiste" data-elegiste aria-live="polite" hidden></div>
+        </div>
         <form class="cotizar" data-cotizar novalidate>
-          <fieldset class="cotizar__tipo">
-            <legend>Me gustaría... <small>Puedes elegir varias</small></legend>
-            <label><input type="checkbox" name="tipo" value="Torta temática" data-dias="10" checked><span>Torta temática</span></label>
-            <label><input type="checkbox" name="tipo" value="Bocaditos y boxes" data-dias="10"><span>Bocaditos y boxes</span></label>
-            <label><input type="checkbox" name="tipo" value="Torta o postre familiar" data-dias="7"><span>Torta o postre familiar</span></label>
-            <label><input type="checkbox" name="tipo" value="Pedido grande" data-dias="10"><span>Pedido grande</span></label>
-            <label><input type="checkbox" name="tipo" value="Decoración" data-dias="10"><span>Decoración</span></label>
-          </fieldset>
-          <div class="cotizar__fila">
-            <div class="campo campo--fecha">
-              <span id="fecha-etiqueta">Fecha del evento</span>
-              <button type="button" class="selector-fecha" data-fecha-boton aria-haspopup="dialog" aria-expanded="false" aria-labelledby="fecha-etiqueta fecha-valor">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
-                <span id="fecha-valor" data-fecha-texto>Elige una fecha</span>
-              </button>
-              <input type="hidden" name="fecha" data-fecha>
-              <div class="calendario" data-calendario role="dialog" aria-label="Elige la fecha del evento" hidden>
-                <div class="calendario__cabeza">
-                  <button type="button" class="calendario__mes" data-cal-mes="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
-                  <p class="calendario__titulo" data-cal-titulo aria-live="polite"></p>
-                  <button type="button" class="calendario__mes" data-cal-mes="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+          <div class="paso-evento">
+            <h3 class="paso-evento__titulo" id="paso-idea"><span aria-hidden="true">2</span>Cuéntanos tu idea</h3>
+            <label class="campo">
+              <span>Tu idea <small data-idea-estado>(opcional)</small></span>
+              <textarea name="idea" rows="3" placeholder="Temática, colores, nombre en la torta, tipo de decoración..." aria-describedby="error-idea"></textarea>
+            </label>
+            <small class="campo__error campo__error--claro" id="error-idea" data-error-evento="idea"></small>
+          </div>
+          <div class="paso-evento">
+            <h3 class="paso-evento__titulo"><span aria-hidden="true">3</span>Datos del evento</h3>
+            <div class="cotizar__fila">
+              <div class="campo campo--fecha">
+                <span id="fecha-etiqueta">Fecha del evento</span>
+                <div class="campo--fecha__ancla">
+                <button type="button" class="selector-fecha" data-fecha-boton aria-haspopup="dialog" aria-expanded="false" aria-labelledby="fecha-etiqueta fecha-valor" aria-describedby="error-fecha">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+                  <span id="fecha-valor" data-fecha-texto>Elige una fecha</span>
+                </button>
+                <input type="hidden" name="fecha" data-fecha>
+                <div class="calendario" data-calendario role="dialog" aria-label="Elige la fecha del evento" hidden>
+                  <div class="calendario__cabeza">
+                    <button type="button" class="calendario__mes" data-cal-mes="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+                    <p class="calendario__titulo" data-cal-titulo aria-live="polite"></p>
+                    <button type="button" class="calendario__mes" data-cal-mes="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+                  </div>
+                  <div class="calendario__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+                  <div class="calendario__dias" data-cal-dias></div>
+                  <p class="calendario__pie" data-cal-pie></p>
                 </div>
-                <div class="calendario__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-                <div class="calendario__dias" data-cal-dias></div>
-                <p class="calendario__pie" data-cal-pie></p>
+                </div>
+                <small class="campo__error campo__error--claro" id="error-fecha" data-error-evento="fecha"></small>
+                <p class="aviso" data-aviso-fecha hidden></p>
+              </div>
+              <label class="campo">
+                <span>¿Para cuántas personas? <small>(opcional)</small></span>
+                <input type="text" name="personas" inputmode="numeric" placeholder="Ej.: 25">
+              </label>
+            </div>
+            <div class="cotizar__entrega">
+              <fieldset class="segmentado segmentado--oscuro">
+                <legend>Entrega</legend>
+                <label><input type="radio" name="entrega" value="Delivery" checked><span>Delivery</span></label>
+                <label><input type="radio" name="entrega" value="Recojo en el local"><span>Recojo en el local</span></label>
+              </fieldset>
+              <div class="plegable plegable--abierto plegable--listo cotizar__direccion" data-cotizar-direccion>
+                <div class="plegable__interior">
+                  <label class="campo">
+                    <span>Dirección de entrega o del evento</span>
+                    <input type="text" name="direccion" autocomplete="street-address" placeholder="Sector, grupo, manzana y lote, o nombre del local" aria-describedby="error-direccion">
+                  </label>
+                  <small class="campo__error campo__error--claro" id="error-direccion" data-error-evento="direccion"></small>
+                </div>
+              </div>
+              <div class="plegable cotizar__direccion cotizar__recoges" data-cotizar-recoges inert>
+                <div class="plegable__interior">
+                  <p class="recoges">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></svg>
+                    <span><strong>Recoges en:</strong> a una cuadra del cruce de Av. José Olaya Balandra y Calle C, Villa El Salvador.</span>
+                  </p>
+                </div>
               </div>
             </div>
             <label class="campo">
-              <span>Porciones o cantidad</span>
-              <input type="text" name="cantidad" inputmode="numeric" placeholder="Ej.: 25 porciones">
+              <span>Tu nombre</span>
+              <input type="text" name="nombre" autocomplete="given-name" required aria-describedby="error-nombre">
             </label>
+            <small class="campo__error campo__error--claro" id="error-nombre" data-error-evento="nombre"></small>
           </div>
-          <div class="elegiste" data-elegiste aria-live="polite" hidden></div>
-          <label class="campo">
-            <span>Tu idea</span>
-            <textarea name="idea" rows="3" placeholder="Temática, colores, sabor, nombre que va en la torta…"></textarea>
-          </label>
-          <label class="campo">
-            <span>Tu nombre</span>
-            <input type="text" name="nombre" autocomplete="given-name" required>
-          </label>
-          <div class="cotizar__entrega">
-            <fieldset class="segmentado segmentado--oscuro">
-              <legend>Entrega</legend>
-              <label><input type="radio" name="entrega" value="Delivery" checked><span>Delivery</span></label>
-              <label><input type="radio" name="entrega" value="Recojo en el local"><span>Recojo en el local</span></label>
-            </fieldset>
-            <div class="plegable plegable--abierto plegable--listo cotizar__direccion" data-cotizar-direccion>
-              <div class="plegable__interior">
-                <label class="campo">
-                  <span>Dirección de entrega o del evento</span>
-                  <input type="text" name="direccion" autocomplete="street-address" placeholder="Sector, grupo, manzana y lote, o nombre del local">
-                </label>
-              </div>
-            </div>
-          </div>
-          <p class="aviso" data-aviso-fecha hidden></p>
           <button class="boton boton--papel" type="submit">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5 5.6 16A8 8 0 1 1 8 18.4l-3.5 1.1Z"/></svg>
             Cotizar por WhatsApp

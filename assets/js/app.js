@@ -2726,6 +2726,8 @@
     const ls = lineasEventoValidas();
     return { suma: Math.round(ls.reduce((s, l) => s + desglose(l).suma, 0) * 100) / 100, cotiza: ls.some((l) => desglose(l).total) };
   }
+  // Solo cosas a cotizar (p. ej. Decoración): "A cotizar", no "S/ 0.00 + lo que se cotice"
+  function textoTotalEvento(t) { return !t.suma && t.cotiza ? "A cotizar" : `${soles(t.suma)}${t.cotiza ? " + lo que se cotice" : ""}`; }
   function pintarElegiste() {
     const caja = $("[data-elegiste]");
     if (!caja) return;
@@ -2756,7 +2758,7 @@
           </div>
         </li>`;
       }).join("")}</ul>
-      <p class="elegiste__total"><span>Total referencial</span><strong>${soles(t.suma)}${t.cotiza ? " + lo que se cotice" : ""}</strong></p>`;
+      <p class="elegiste__total"><span>Total referencial</span><strong>${textoTotalEvento(t)}</strong></p>`;
   }
   /* El catálogo puede desbordar (para que la lista del filtro no se corte) solo cuando ya está abierto
      a su altura completa; si la animación aún no termina, se vuelve a revisar. */
@@ -2849,12 +2851,8 @@
     const formatoMes = new Intl.DateTimeFormat("es-PE", { month: "long", year: "numeric" });
     let visto = null; // primer día del mes que se muestra
 
-    // Con varias opciones elegidas manda la anticipación más larga
-    const elegidosTipo = () => $$('input[name="tipo"]:checked', form);
-    // La anticipación también la ponen los productos elegidos (p. ej. cupcakes temáticos: 7 días; tortas: 10)
-    const diasTipo = () => Math.max(0, ...elegidosTipo().map((i) => Number(i.dataset.dias || DIAS_EVENTO)),
-      ...lineasEventoValidas().map((l) => porId.get(l.producto).anticipacion || 0)) || DIAS_EVENTO;
-    const listaTipos = () => { const v = elegidosTipo().map((i) => i.value); return v.length > 1 ? v.slice(0, -1).join(", ") + " y " + v[v.length - 1] : v[0] || ""; };
+    // La anticipación la ponen los productos elegidos (manda la más larga); sin nada elegido, la de eventos
+    const diasTipo = () => Math.max(0, ...lineasEventoValidas().map((l) => porId.get(l.producto).anticipacion || 0)) || DIAS_EVENTO;
     const minima = () => { const m = new Date(hoy); m.setDate(m.getDate() + diasTipo()); return m; };
     const elegida = () => (fecha.value ? new Date(fecha.value + "T00:00:00") : null);
     const mismoDia = (a, b) => a && b && a.toDateString() === b.toDateString();
@@ -2903,6 +2901,7 @@
       textoFecha.textContent = texto.charAt(0).toUpperCase() + texto.slice(1);
       boton.classList.add("selector-fecha--lleno");
       aviso.hidden = true;
+      errorEvento("fecha", "");
     }
 
     boton.addEventListener("click", () => (cal.hidden ? abrirCalendario() : cerrarCalendario(false)));
@@ -2936,22 +2935,43 @@
     document.addEventListener("click", (e) => {
       if (!cal.hidden && !cal.contains(e.target) && !boton.contains(e.target)) cerrarCalendario(false);
     });
-    // Al cambiar el tipo de pedido cambia la anticipación mínima
-    // Entrega del evento: con delivery (o servicio en el lugar) se pide la dirección
+    // Entrega del evento: con delivery se pide la dirección; con recojo se muestra la dirección del local.
+    // Las dos se pliegan con la misma animación de alto (.plegable) y se cruzan: una se va mientras la otra llega.
+    // Mientras están plegadas no se pueden enfocar (inert); al terminar de abrirse dejan de recortar,
+    // para que se vea el contorno de foco del campo.
     const campoDireccion = $("[data-cotizar-direccion]");
-    // Se pliega con una animación de alto (.plegable); mientras está plegada no se puede enfocar (inert)
-    // (al terminar de abrirse deja de recortar, para que se vea el contorno de foco del campo)
-    let relojDireccion = null;
+    const lineaRecoges = $("[data-cotizar-recoges]");
+    const plegar = (el, ver) => {
+      if (!el || ver === el.classList.contains("plegable--abierto")) return;
+      clearTimeout(el._reloj);
+      el.classList.remove("plegable--listo");
+      el.classList.toggle("plegable--abierto", ver);
+      el.inert = !ver;
+      if (ver) el._reloj = setTimeout(() => el.classList.add("plegable--listo"), 450);
+    };
     const ajustarEntrega = () => {
-      const ver = form.entrega.value === "Delivery";
-      if (ver === campoDireccion.classList.contains("plegable--abierto")) return;
-      clearTimeout(relojDireccion);
-      campoDireccion.classList.remove("plegable--listo");
-      campoDireccion.classList.toggle("plegable--abierto", ver);
-      campoDireccion.inert = !ver;
-      if (ver) relojDireccion = setTimeout(() => campoDireccion.classList.add("plegable--listo"), 450);
+      const delivery = form.entrega.value === "Delivery";
+      plegar(campoDireccion, delivery);
+      plegar(lineaRecoges, !delivery);
+      if (!delivery) errorEvento("direccion", "");
     };
     ajustarEntrega();
+    /* Avisos de cada campo: aparecen en su campo, se borran al corregirlo */
+    function errorEvento(campo, mensaje) {
+      const salida = $(`[data-error-evento="${campo}"]`, form);
+      if (salida) salida.textContent = mensaje;
+      const control = campo === "fecha" ? boton : form.elements[campo];
+      if (control) control.setAttribute("aria-invalid", mensaje ? "true" : "false");
+    }
+    /* “Tu idea” es obligatoria solo si en “Elegiste” hay algo personalizable */
+    const ideaNecesaria = () => lineasEventoValidas().some((l) => porId.get(l.producto).personalizable);
+    function pintarIdea() {
+      const necesaria = ideaNecesaria();
+      $("[data-idea-estado]", form).textContent = necesaria ? "(necesaria para cotizar lo personalizado)" : "(opcional)";
+      form.elements.idea.required = necesaria;
+      if (!necesaria) errorEvento("idea", "");
+    }
+    pintarIdea();
     const revisarFecha = (motivo) => {
       const actual = elegida();
       if (actual && actual < minima()) {
@@ -2963,36 +2983,57 @@
       }
       if (!cal.hidden) { visto = null; pintarCalendario(false); }
     };
-    alCambiarEvento = () => revisarFecha("lo que elegiste");
+    const avisoElegiste = $("[data-aviso-elegiste]");
+    alCambiarEvento = () => {
+      revisarFecha("lo que elegiste");
+      pintarIdea();
+      if (lineasEventoValidas().length) avisoElegiste.hidden = true;
+    };
     form.addEventListener("change", (e) => {
-      if (e.target.name === "entrega") { ajustarEntrega(); return; }
-      if (e.target.name !== "tipo") return;
-      revisarFecha(listaTipos().toLowerCase() || "lo que elegiste");
+      if (e.target.name === "entrega") ajustarEntrega();
+    });
+    // Al corregir un campo, su aviso se va
+    form.addEventListener("input", (e) => {
+      if (["idea", "direccion", "nombre"].includes(e.target.name) && e.target.value.trim()) errorEvento(e.target.name, "");
     });
 
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const d = Object.fromEntries(new FormData(form));
       const elegidos = lineasEventoValidas();
-      if (!elegidosTipo().length && !elegidos.length) { form.querySelector('input[name="tipo"]').focus(); aviso.hidden = false; aviso.textContent = "Elige al menos una opción en “Me gustaría...” o un producto en “Ver opciones para tu evento”."; return; }
-      if (!d.fecha) { boton.focus(); aviso.hidden = false; aviso.textContent = "Elige la fecha de tu evento para revisar disponibilidad."; return; }
-      if (!d.nombre.trim()) { form.elements.nombre.focus(); aviso.hidden = false; aviso.textContent = "Escribe tu nombre para saber a quién responder."; return; }
       const conEntrega = d.entrega === "Delivery";
-      if (conEntrega && !d.direccion.trim()) { form.elements.direccion.focus(); aviso.hidden = false; aviso.textContent = "Escribe la dirección de entrega o del lugar del evento, o elige recojo en el local."; return; }
+      // Se revisa en el orden del formulario; cada aviso va en su campo y se lleva al primero que falta
+      const faltas = [];
+      avisoElegiste.hidden = elegidos.length > 0;
+      if (!elegidos.length) faltas.push($("[data-ver-eventos]"));
+      const sinIdea = ideaNecesaria() && !d.idea.trim();
+      errorEvento("idea", sinIdea ? "Cuéntanos tu idea para cotizar lo personalizado: temática, colores, nombre en la torta…" : "");
+      if (sinIdea) faltas.push(form.elements.idea);
+      errorEvento("fecha", d.fecha ? "" : "Elige la fecha de tu evento para revisar disponibilidad.");
+      if (!d.fecha) faltas.push(boton);
+      const sinDireccion = conEntrega && !d.direccion.trim();
+      errorEvento("direccion", sinDireccion ? "Escribe la dirección de entrega o del lugar del evento (o elige recojo en el local)." : "");
+      if (sinDireccion) faltas.push(form.elements.direccion);
+      errorEvento("nombre", d.nombre.trim() ? "" : "Escribe tu nombre para saber a quién responder.");
+      if (!d.nombre.trim()) faltas.push(form.elements.nombre);
+      if (faltas.length) {
+        const primero = faltas[0];
+        primero.scrollIntoView({ block: "center", behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+        primero.focus({ preventScroll: true });
+        if (!elegidos.length) anunciar(avisoElegiste.textContent);
+        return;
+      }
       const legible = new Intl.DateTimeFormat("es-PE", { weekday: "long", day: "numeric", month: "long", year: "numeric" }).format(new Date(d.fecha + "T12:00:00"));
-      // Orden: fecha, entrega y dirección, “Me gustaría”, “Elegiste” con precios referenciales, “Tu idea”
-      const partes = ["¡Hola, La Rejita Gourmet! Quiero cotizar un evento.", "", `Fecha del evento: ${legible}`];
+      // Orden: lo elegido (con precios referenciales), la idea y los datos del evento
+      const t = totalEvento();
+      const partes = ["¡Hola, La Rejita Gourmet! Quiero cotizar un evento.", "", "Elegiste (precios referenciales):", elegidos.map(mensajeLinea).join("\n"),
+        `Total referencial: ${textoTotalEvento(t)}`];
+      if (d.idea.trim()) partes.push("", `Mi idea: ${d.idea.trim()}`);
+      partes.push("", "Datos del evento:", `Fecha: ${legible}`);
+      if (d.personas.trim()) partes.push(`Personas: ${d.personas.trim()}`);
       if (conEntrega) partes.push("Entrega: delivery", `Dirección: ${d.direccion.trim()}`);
       else partes.push("Entrega: recojo en el local");
-      if (elegidosTipo().length) partes.push(`Me gustaría: ${listaTipos()}`);
-      if (d.cantidad.trim()) partes.push(`Porciones o cantidad: ${d.cantidad.trim()}`);
-      if (elegidos.length) {
-        const t = totalEvento();
-        partes.push("", "Elegiste (precios referenciales):", elegidos.map(mensajeLinea).join("\n"));
-        partes.push(`Total referencial: ${soles(t.suma)}${t.cotiza ? " + lo que se cotice" : ""}`);
-      }
-      if (d.idea.trim()) partes.push("", `Mi idea: ${d.idea.trim()}`);
-      partes.push("", `Nombre: ${d.nombre.trim()}`, "", "¿Me envían la cotización, por favor?");
+      partes.push(`Nombre: ${d.nombre.trim()}`, "", "¿Me envían la cotización, por favor?");
       const url = urlWhatsApp(partes.join("\n"));
       abrirWhatsApp(url);
       mostrarGracias(url, "cotizacion");
