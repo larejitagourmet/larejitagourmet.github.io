@@ -600,6 +600,8 @@ a { color: inherit; text-underline-offset: 0.2em; text-decoration-thickness: 1px
 }
 .pieza--vitrina .pieza__agregar { top: 0.75rem; bottom: auto; }
 .pieza--vitrina .agregar span { white-space: nowrap; }
+/* En la vitrina el precio va solo en el botón: el nombre usa todo el ancho */
+.pieza--vitrina .pieza__nombre { flex: 1 1 auto; min-width: 0; }
 
 /* Carta en pestañas */
 .grupo__siguiente { margin-top: 2.5rem; font-size: 1.0625rem; }

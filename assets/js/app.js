@@ -700,7 +700,7 @@
       </div>
       <div class="pieza__texto">
         <p class="pieza__nombre">${esc(nombre)}</p>
-        <span class="pieza__precio">${precio}</span>
+        ${opciones.vitrina ? "" : `<span class="pieza__precio">${precio}</span>`}
       </div>
     </li>`;
   }
