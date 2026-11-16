@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es-PE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>La Rejita Gourmet · Postres, tortas, hamburguesas y alitas en Villa El Salvador</title>
+  <meta name="description" content="Postres, tortas para tus celebraciones, hamburguesas, alitas y jugos en Villa El Salvador. Arma tu pedido y envíalo por WhatsApp. Delivery o recojo en el local, martes a domingo de 6 pm a 11 pm.">
+  <meta name="theme-color" content="#4A1747">
+  <meta property="og:title" content="La Rejita Gourmet">
+  <meta property="og:description" content="La casa es chica pero el corazón es grande. Pide por WhatsApp en Villa El Salvador.">
+  <meta property="og:image" content="assets/img/productos/torta-de-chocolate-familiar.jpg">
+  <meta property="og:locale" content="es_PE">
+  <link rel="icon" type="image/png" href="assets/img/favicon.png">
+  <link rel="apple-touch-icon" href="assets/img/favicon.png">
+  <link rel="preload" href="assets/fonts/libre-bodoni.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/hanken-grotesk.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="assets/css/estilos.css">
+</head>
+<body>
+  <a class="saltar" href="#carta">Ir a la carta</a>
+
+  <div class="barra" role="status" aria-live="polite">
+    <p class="barra__estado"><span class="punto" aria-hidden="true"></span><span data-estado>Martes a domingo · 6 pm a 11 pm</span></p>
+    <p class="barra__extra">Delivery en todo Villa El Salvador</p>
+  </div>
+
+  <header class="cabecera">
+    <a class="cabecera__logo" href="#inicio" aria-label="La Rejita Gourmet, inicio">
+      <img src="assets/img/logo.png" alt="La Rejita Gourmet" width="1200" height="550">
+    </a>
+    <nav class="cabecera__nav" aria-label="Principal">
+      <a href="#carta">Carta</a>
+      <a href="#eventos"><span class="solo-ancho">Tortas y </span><span class="solo-angosto">E</span><span class="solo-ancho">e</span>ventos</a>
+      <a href="#encuentranos"><span class="solo-ancho">Encuéntranos</span><span class="solo-angosto">Local</span></a>
+    </nav>
+    <button class="boton-pedido" type="button" data-abrir-pedido aria-haspopup="dialog" aria-label="Ver tu pedido">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11.1a2 2 0 0 1-2 1.9H8.2a2 2 0 0 1-2-1.9L5 8Z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg>
+      <span class="solo-ancho">Pedido</span>
+      <span class="boton-pedido__n" data-contador hidden>0</span>
+    </button>
+  </header>
+
+  <main id="inicio">
+    <div class="toldo" aria-hidden="true"></div>
+
+    <section class="portada" aria-labelledby="lema">
+      <div class="portada__texto-bloque">
+        <h1 id="lema" class="portada__lema">La casa es chica, pero el corazón es grande.</h1>
+        <p class="portada__texto">Postres, tortas para tus celebraciones, hamburguesas y alitas en Villa El Salvador. Arma tu pedido aquí y nos llega directo al WhatsApp.</p>
+        <div class="portada__acciones">
+          <a class="boton boton--tinta" href="#carta">Ver la carta</a>
+          <a class="enlace-flecha" href="#eventos">Cotizar una torta <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a>
+        </div>
+      </div>
+      <figure class="portada__foto">
+        <img src="assets/img/portada-alitas.jpg" alt="Alitas acevichadas con papas fritas sobre una tabla de madera" width="1200" height="1180" fetchpriority="high" decoding="async">
+        <figcaption>Alitas acevichadas, con papas</figcaption>
+      </figure>
+    </section>
+
+    <section class="vitrina" aria-labelledby="vitrina-titulo">
+      <div class="cabeza-seccion">
+        <h2 id="vitrina-titulo">Los más pedidos</h2>
+        <div class="vitrina__flechas">
+          <button type="button" class="boton-redondo" data-vitrina data-dir="-1" aria-label="Anteriores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 6l-6 6 6 6"/></svg></button>
+          <button type="button" class="boton-redondo" data-vitrina data-dir="1" aria-label="Siguientes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+      <div class="vitrina__marco" data-carrusel>
+        <ol class="vitrina__fila" data-vitrina-fila></ol>
+        <span class="vitrina__velo vitrina__velo--izq" data-velo aria-hidden="true"></span>
+        <span class="vitrina__velo vitrina__velo--der" data-velo aria-hidden="true"></span>
+      </div>
+    </section>
+
+    <section class="temporada" data-temporada aria-label="De temporada" hidden></section>
+
+    <section class="frase" data-frase hidden aria-label="Frase de la semana">
+      <figure>
+        <blockquote><p data-frase-texto></p></blockquote>
+        <figcaption>La frase de la semana en La Rejita</figcaption>
+      </figure>
+    </section>
+
+    <section class="carta" id="carta" aria-labelledby="carta-titulo">
+      <div class="cabeza-seccion">
+        <h2 id="carta-titulo">La carta</h2>
+        <label class="buscador">
+          <span class="visualmente-oculto">Buscar en la carta</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+          <input type="search" placeholder="Buscar: alitas, cheesecake, jugo…" data-buscador autocomplete="off">
+        </label>
+      </div>
+      <nav class="categorias" aria-label="Categorías de la carta" data-carrusel>
+        <button type="button" class="categorias__todas" data-todas-boton aria-haspopup="dialog" aria-expanded="false" aria-controls="panel-categorias"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg><span class="solo-ancho">Todas las categorías</span><span class="solo-angosto">Todas</span></button>
+        <button type="button" class="categorias__flecha categorias__flecha--atras" data-chips data-dir="-1" aria-label="Ver categorías anteriores"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+        <ul data-categorias></ul>
+        <button type="button" class="categorias__flecha categorias__flecha--adelante" data-chips data-dir="1" aria-label="Ver más categorías"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+      </nav>
+      <div class="carta__cuerpo" data-carta>
+        <p class="carta__cargando">Cargando la carta…</p>
+      </div>
+      <p class="carta__vacio" data-vacio hidden></p>
+    </section>
+
+    <section class="eventos" id="eventos" aria-labelledby="eventos-titulo" data-fondo-oscuro>
+      <div class="eventos__foto">
+        <img src="assets/img/productos/torta-de-chocolate-familiar.jpg" alt="Torta de chocolate con fresas sobre una base blanca, en el local de La Rejita Gourmet" width="1170" height="1022" loading="lazy" decoding="async">
+      </div>
+      <div class="eventos__texto">
+        <div class="eventos__cabeza">
+          <h2 id="eventos-titulo">¿Se viene una celebración?</h2>
+          <img class="misifu" src="assets/img/misifu.png" alt="Misifu, el gatito de La Rejita, celebrando con gorro de fiesta y serpentinas" width="640" height="506" loading="lazy" decoding="async">
+        </div>
+        <p class="eventos__intro">Hacemos tortas temáticas, bocaditos y boxes para cumpleaños y reuniones. Cuéntanos tu idea y te cotizamos por WhatsApp.</p>
+        <dl class="eventos__datos">
+          <div><dt>Anticipación</dt><dd>Separa tu fecha con 10 días.</dd></div>
+          <div><dt>Tortas temáticas</dt><dd>Desde S/ 280. El precio depende del diseño y la fecha.</dd></div>
+          <div><dt>Decoración</dt><dd>También la hacemos a pedido. Consúltanos.</dd></div>
+        </dl>
+        <div class="catalogo">
+          <button type="button" class="boton boton--papel catalogo__boton" data-ver-eventos aria-expanded="false" aria-controls="catalogo-eventos">
+            <span data-catalogo-texto>Ver opciones para tu evento</span>
+            <span class="catalogo__emoji" aria-hidden="true">🎉</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <div class="despliegue" id="catalogo-eventos" data-catalogo-evento-panel inert>
+            <div class="despliegue__interior">
+              <p class="catalogo__intro">Elige lo que te provoque y lo sumamos a tu solicitud, en “Elegiste”. Los precios son referenciales: te confirmamos la cotización por WhatsApp.</p>
+              <div class="catalogo__herramientas">
+                <label class="buscador buscador--oscuro catalogo__buscador">
+                  <span class="visualmente-oculto">Buscar en las opciones para eventos</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></svg>
+                  <input type="search" placeholder="Buscar: tequeños, tartaletas…" data-buscar-evento autocomplete="off">
+                </label>
+                <div class="filtro" data-filtro>
+                  <button type="button" class="filtro__boton" data-filtro-boton aria-haspopup="listbox" aria-expanded="false" aria-controls="filtro-evento-lista">
+                    <span class="filtro__etiqueta">Categoría:</span>
+                    <span class="filtro__valor" data-filtro-valor>Todas</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+                  </button>
+                  <ul class="filtro__lista" id="filtro-evento-lista" role="listbox" aria-label="Categoría" tabindex="-1" data-filtro-lista hidden></ul>
+                </div>
+                <button type="button" class="catalogo__cerrar" data-cerrar-catalogo aria-label="Cerrar opciones para tu evento">
+                  <span>Cerrar</span>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                </button>
+              </div>
+              <div class="catalogo__grupos" data-catalogo-evento></div>
+              <p class="catalogo__vacio" data-catalogo-vacio role="status" hidden></p>
+              <button type="button" class="boton boton--borde-claro catalogo__cerrar-final" data-cerrar-catalogo>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+                Cerrar opciones
+              </button>
+            </div>
+          </div>
+        </div>
+        <form class="cotizar" data-cotizar novalidate>
+          <fieldset class="cotizar__tipo">
+            <legend>Me gustaría... <small>Puedes elegir varias</small></legend>
+            <label><input type="checkbox" name="tipo" value="Torta temática" data-dias="10" checked><span>Torta temática</span></label>
+            <label><input type="checkbox" name="tipo" value="Bocaditos y boxes" data-dias="10"><span>Bocaditos y boxes</span></label>
+            <label><input type="checkbox" name="tipo" value="Torta o postre familiar" data-dias="7"><span>Torta o postre familiar</span></label>
+            <label><input type="checkbox" name="tipo" value="Pedido grande" data-dias="10"><span>Pedido grande</span></label>
+            <label><input type="checkbox" name="tipo" value="Decoración" data-dias="10"><span>Decoración</span></label>
+          </fieldset>
+          <div class="cotizar__fila">
+            <div class="campo campo--fecha">
+              <span id="fecha-etiqueta">Fecha del evento</span>
+              <button type="button" class="selector-fecha" data-fecha-boton aria-haspopup="dialog" aria-expanded="false" aria-labelledby="fecha-etiqueta fecha-valor">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+                <span id="fecha-valor" data-fecha-texto>Elige una fecha</span>
+              </button>
+              <input type="hidden" name="fecha" data-fecha>
+              <div class="calendario" data-calendario role="dialog" aria-label="Elige la fecha del evento" hidden>
+                <div class="calendario__cabeza">
+                  <button type="button" class="calendario__mes" data-cal-mes="-1" aria-label="Mes anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+                  <p class="calendario__titulo" data-cal-titulo aria-live="polite"></p>
+                  <button type="button" class="calendario__mes" data-cal-mes="1" aria-label="Mes siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+                </div>
+                <div class="calendario__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+                <div class="calendario__dias" data-cal-dias></div>
+                <p class="calendario__pie" data-cal-pie></p>
+              </div>
+            </div>
+            <label class="campo">
+              <span>Porciones o cantidad</span>
+              <input type="text" name="cantidad" inputmode="numeric" placeholder="Ej.: 25 porciones">
+            </label>
+          </div>
+          <div class="elegiste" data-elegiste aria-live="polite" hidden></div>
+          <label class="campo">
+            <span>Tu idea</span>
+            <textarea name="idea" rows="3" placeholder="Temática, colores, sabor, nombre que va en la torta…"></textarea>
+          </label>
+          <label class="campo">
+            <span>Tu nombre</span>
+            <input type="text" name="nombre" autocomplete="given-name" required>
+          </label>
+          <div class="cotizar__entrega">
+            <fieldset class="segmentado segmentado--oscuro">
+              <legend>Entrega</legend>
+              <label><input type="radio" name="entrega" value="Delivery" checked><span>Delivery</span></label>
+              <label><input type="radio" name="entrega" value="Recojo en el local"><span>Recojo en el local</span></label>
+            </fieldset>
+            <div class="plegable plegable--abierto plegable--listo cotizar__direccion" data-cotizar-direccion>
+              <div class="plegable__interior">
+                <label class="campo">
+                  <span>Dirección de entrega o del evento</span>
+                  <input type="text" name="direccion" autocomplete="street-address" placeholder="Sector, grupo, manzana y lote, o nombre del local">
+                </label>
+              </div>
+            </div>
+          </div>
+          <p class="aviso" data-aviso-fecha hidden></p>
+          <button class="boton boton--papel" type="submit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5 5.6 16A8 8 0 1 1 8 18.4l-3.5 1.1Z"/></svg>
+            Cotizar por WhatsApp
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <div class="cierre" aria-hidden="true" data-fondo-oscuro><div class="toldo toldo--cierre"></div></div>
+    <section class="encuentranos" id="encuentranos" aria-labelledby="encuentranos-titulo" data-fondo-oscuro>
+      <h2 id="encuentranos-titulo" class="encuentranos__titulo">Encuéntranos</h2>
+      <p class="encuentranos__direccion">A una cuadra del cruce de Av. José Olaya Balandra y Calle C, Villa El Salvador.</p>
+      <div class="encuentranos__acciones">
+        <a class="boton boton--papel" href="https://maps.app.goo.gl/LEKk8hxErAEeQm13A" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.3"/></svg>
+          Cómo llegar
+        </a>
+        <a class="enlace-flecha enlace-flecha--claro" href="https://wa.me/51999225519" target="_blank" rel="noopener">
+          <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.8 9.8 0 0 0-8.4 14.8L2.3 21.7l4.8-1.3A9.8 9.8 0 1 0 12 2.2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.8.8-2.8-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.5-.3Z"/></svg>
+          Escríbenos al +51 999 225 519
+        </a>
+      </div>
+      <dl class="encuentranos__datos">
+        <div><dt>Horario</dt><dd>Martes a domingo<br>6 pm a 11 pm</dd><dd class="encuentranos__estado" data-estado-largo></dd></div>
+        <div><dt>Delivery</dt><dd>A toda Villa El Salvador. El costo depende de tu ubicación y te lo confirmamos por WhatsApp.</dd></div>
+        <div><dt>Recojo y reservas</dt><dd>Recoge tu pedido a la hora que elijas, o resérvalo y ven a comer al local.</dd></div>
+        <div><dt>Pagos</dt><dd>Por Yape. En reservas, el saldo se paga en el local en efectivo, Yape o tarjeta.</dd></div>
+      </dl>
+      <section class="condiciones" id="condiciones" aria-labelledby="condiciones-titulo">
+        <h3 id="condiciones-titulo">Condiciones de compra</h3>
+        <dl class="condiciones__lista">
+          <div><dt>Delivery y recojo</dt><dd>Pagas el 100% por Yape antes de que empecemos a preparar. El delivery llega en unos 45 a 60 minutos y para recoger eliges la hora.</dd></div>
+          <div><dt>Reservas en el local</dt><dd>Nos dices cuántas personas vienen, el día y la hora. Separas tu pedido con un adelanto del 70% por Yape y pagas el saldo en el local, en efectivo, Yape o tarjeta.</dd></div>
+          <div><dt>Horarios</dt><dd>Atendemos de martes a domingo, de 6 pm a 11 pm. Necesitamos al menos 40 minutos para preparar tu pedido; los productos por encargo se piden con sus días de anticipación.</dd></div>
+          <div><dt>Tortas y eventos</dt><dd>Separas la fecha con un adelanto del 50%. El saldo se paga antes de la entrega.</dd></div>
+          <div><dt>Promo 2x1 en tragos</dt><dd>De martes a domingo, de 7 pm a 10 pm: por cada 2 tragos, el de menor precio va gratis. Aplica en delivery, recojo y reserva, según la hora del pedido. Venta solo a mayores de 18 años. Tomar bebidas alcohólicas en exceso es dañino.</dd></div>
+          <div><dt>Cancelaciones</dt><dd>Si cancelas cuando ya empezamos a preparar, no hay devolución. En tortas y eventos, si cancelas con al menos 3 días de anticipación, reprogramamos tu pedido.</dd></div>
+        </dl>
+      </section>
+    </section>
+  </main>
+
+  <footer class="pie" data-fondo-oscuro>
+    <img class="pie__logo" src="assets/img/logo.png" alt="La Rejita Gourmet" width="1200" height="550" loading="lazy">
+    <ul class="pie__redes">
+      <li><a class="red" href="https://www.instagram.com/larejitagourmet/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1" fill="currentColor" stroke="none"/></svg>
+        Instagram</a></li>
+      <li><a class="red" href="https://www.facebook.com/p/La-rejita-Gourmet-100049008468104/" target="_blank" rel="noopener">
+        <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 21v-7.5h2.6l.4-3h-3V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4A21 21 0 0 0 14.3 4c-2.3 0-3.9 1.4-3.9 4v2.5H7.8v3h2.6V21h3.1Z"/></svg>
+        Facebook</a></li>
+      <li><a class="red" href="https://www.tiktok.com/@larejitagourmet" target="_blank" rel="noopener">
+        <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 3h-3.1v12.3a2.7 2.7 0 1 1-2.7-2.7c.3 0 .6 0 .9.1V9.5a5.9 5.9 0 1 0 4.9 5.8V9.1a7.6 7.6 0 0 0 4.4 1.4V7.4A4.4 4.4 0 0 1 16.6 3Z"/></svg>
+        TikTok</a></li>
+    </ul>
+    <p class="pie__legal">© <span data-anio>2026</span> La Rejita Gourmet · Villa El Salvador, Lima</p>
+  </footer>
+
+  <button class="barra-pedido" type="button" data-abrir-pedido data-barra-pedido hidden>
+    <span class="barra-pedido__n"><span data-barra-n>0</span> <span data-barra-palabra>productos</span></span>
+    <span class="barra-pedido__ver" data-barra-ver>Ver pedido</span>
+    <span class="barra-pedido__total" data-barra-total>S/ 0.00</span>
+  </button>
+
+  <!-- Recordatorio de que el local está abierto, cuando la barra de horario ya no se ve (la barra ya lo anuncia a lectores de pantalla) -->
+  <p class="pastilla-estado" data-pastilla-estado aria-hidden="true"><span class="punto" aria-hidden="true"></span>Abierto ahora</p>
+
+  <dialog class="pedido" data-pedido aria-labelledby="pedido-titulo">
+    <div class="pedido__hoja">
+      <span class="hoja__asa" aria-hidden="true"></span>
+      <header class="pedido__cabeza">
+        <h2 id="pedido-titulo" tabindex="-1" data-foco>Tu pedido</h2>
+        <button type="button" class="boton-redondo boton-redondo--tacho" data-vaciar aria-label="Vaciar pedido" title="Vaciar pedido" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l.8 11.2A2 2 0 0 0 9.3 20h5.4a2 2 0 0 0 2-1.8L17.5 7M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7"/></svg></button>
+        <button type="button" class="boton-redondo" data-cerrar-pedido aria-label="Cerrar pedido"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </header>
+      <div class="pedido__cuerpo">
+        <p class="aviso aviso--cerrado" data-aviso-cerrado hidden></p>
+        <p class="aviso" data-aviso-nodisp role="status" hidden></p>
+        <ul class="pedido__lista" data-lista></ul>
+        <div class="aviso aviso--local" data-aviso-local role="status" hidden>
+          <p data-aviso-local-texto></p>
+          <button type="button" class="aviso__accion" data-volver-reserva>Mejor hago una reserva</button>
+        </div>
+        <div class="pedido__vacio" data-pedido-vacio>
+          <p>Tu pedido está vacío.</p>
+          <a class="boton boton--tinta" href="#carta" data-cerrar-pedido>Ver la carta</a>
+        </div>
+        <form class="pedido__form" data-form-pedido novalidate>
+          <div class="pedido__totales">
+            <p><span>Subtotal</span><strong data-subtotal>S/ 0.00</strong></p>
+            <p class="pedido__promo" data-promo-linea hidden><span>Promo 2x1 aplicada</span><strong data-promo-monto></strong></p>
+            <p class="pedido__total" data-total-linea hidden><span>Total</span><strong data-total></strong></p>
+            <div class="pedido__reserva" data-reserva-montos hidden>
+              <p><span data-adelanto-etiqueta>Adelanto 70% por Yape</span><strong data-adelanto></strong></p>
+              <p><span>Saldo en el local</span><strong data-saldo></strong></p>
+            </div>
+            <p class="pedido__nota" data-nota-total></p>
+            <p class="pedido__promo-ayuda" data-promo-ayuda hidden></p>
+            <p class="pedido__legal" data-legal hidden>Venta solo a mayores de 18 años. Tomar bebidas alcohólicas en exceso es dañino.</p>
+          </div>
+          <fieldset class="segmentado segmentado--tres">
+            <legend>¿Cómo lo quieres?</legend>
+            <label><input type="radio" name="modalidad" value="Delivery" checked><span>Delivery</span></label>
+            <label><input type="radio" name="modalidad" value="Recojo en el local"><span>Recojo</span></label>
+            <label><input type="radio" name="modalidad" value="Reserva en el local"><span>Reserva</span></label>
+          </fieldset>
+          <p class="pedido__ayuda pedido__ayuda--modalidad" data-modalidad-ayuda></p>
+          <p class="pedido__ayuda pedido__ayuda--local" data-ayuda-local hidden>Tu pedido tiene infusiones, que son solo para tomar en el local. Por eso va como reserva.</p>
+          <label class="campo">
+            <span>Tu nombre</span>
+            <input type="text" name="nombre" autocomplete="given-name" required>
+            <small class="campo__error" data-error="nombre"></small>
+          </label>
+          <div data-solo-delivery>
+            <label class="campo">
+              <span>Dirección de entrega</span>
+              <input type="text" name="direccion" autocomplete="street-address" placeholder="Sector, grupo, manzana y lote" required>
+              <small class="campo__error" data-error="direccion"></small>
+            </label>
+            <label class="campo">
+              <span>Referencia <em>(opcional)</em></span>
+              <input type="text" name="referencia" placeholder="Ej.: frente al parque, puerta verde">
+            </label>
+            <p class="pedido__estimado" data-entrega-estimada></p>
+            <p class="pedido__ayuda">El costo del delivery depende de tu ubicación. Te lo confirmamos por WhatsApp antes de preparar.</p>
+          </div>
+          <div class="personas" data-solo-reserva hidden>
+            <span class="personas__etiqueta" id="personas-etiqueta">¿Cuántas personas vendrán?</span>
+            <div class="paso paso--claro" role="group" aria-labelledby="personas-etiqueta">
+              <button type="button" data-personas="-1" aria-label="Una persona menos"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+              <output aria-live="polite" data-personas-n>2</output>
+              <button type="button" data-personas="1" aria-label="Una persona más"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+            </div>
+            <input type="hidden" name="personas" value="2">
+          </div>
+          <div class="horario" data-horario hidden></div>
+          <div class="pago">
+            <p class="pago__titulo">Pago</p>
+            <div class="pago__yape-bloque">
+              <img class="pago__yape" src="assets/img/yape.svg" alt="Yape" width="44" height="24">
+              <p data-pago-texto></p>
+            </div>
+            <div class="pago__saldo" data-saldo-pago hidden>
+              <fieldset class="segmentado segmentado--tres">
+                <legend data-saldo-legend>¿Cómo pagarás el saldo en el local?</legend>
+                <label><input type="radio" name="saldo" value="Efectivo" checked><span><svg class="pago__icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.6"/><path d="M6 9.5v5M18 9.5v5"/></svg>Efectivo</span></label>
+                <label><input type="radio" name="saldo" value="Yape"><span><img class="pago__yape" src="assets/img/yape.svg" alt="" width="44" height="24">Yape</span></label>
+                <label><input type="radio" name="saldo" value="Tarjeta"><span><svg class="pago__icono" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5.5" width="19" height="13" rx="2.2"/><path d="M2.5 9.5h19M6 15h4"/></svg>Tarjeta</span></label>
+              </fieldset>
+              <label class="campo" data-con-cuanto hidden>
+                <span>¿Con cuánto pagarás?</span>
+                <span class="campo__soles"><span aria-hidden="true">S/</span><input type="text" name="conCuanto" inputmode="decimal" autocomplete="off" placeholder="Ej.: 50"></span>
+                <small class="pedido__vuelto" data-vuelto aria-live="polite"></small>
+                <small class="campo__error" data-error="conCuanto"></small>
+              </label>
+            </div>
+          </div>
+          <label class="campo">
+            <span>Notas <em>(opcional)</em></span>
+            <textarea name="notas" rows="2" placeholder="Sin cebolla, alguna alergia, un saludo para la torta…"></textarea>
+          </label>
+          <p class="pedido__condiciones">Delivery y recojo: pagas el 100% por Yape antes de preparar. Reserva: 70% de adelanto por Yape y el saldo en el local.<span data-condicion-encargo hidden> Tortas y eventos: 50% de adelanto.</span> <a href="#condiciones" data-cerrar-pedido>Ver condiciones</a></p>
+          <p class="aviso aviso--disponibilidad">Confirmamos disponibilidad por WhatsApp.</p>
+          <button class="boton boton--tinta boton--ancho" type="submit">
+            <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.8 9.8 0 0 0-8.4 14.8L2.3 21.7l4.8-1.3A9.8 9.8 0 1 0 12 2.2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.8.8-2.8-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.5-.3Z"/></svg>
+            Enviar pedido por WhatsApp
+          </button>
+          <p class="pedido__ayuda">Se abrirá WhatsApp en una pestaña nueva con tu pedido escrito. Solo tienes que enviarlo.</p>
+        </form>
+      </div>
+      <div class="aviso-flotante" data-aviso-vaciado role="status" hidden>
+        <span>Pedido vaciado</span>
+        <button type="button" data-deshacer>Deshacer</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="pedido pedido--producto" data-producto aria-labelledby="producto-titulo">
+    <div class="pedido__hoja">
+      <span class="hoja__asa hoja__asa--foto" aria-hidden="true"></span>
+      <button type="button" class="boton-redondo opciones__cerrar" data-cerrar aria-label="Cerrar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      <div class="pedido__cuerpo opciones__cuerpo" data-producto-cuerpo>
+        <div class="opciones__media" data-producto-media></div>
+        <div data-producto-contenido></div>
+      </div>
+      <div class="opciones__pie" data-producto-pie></div>
+    </div>
+  </dialog>
+
+  <dialog class="gracias" data-gracias aria-labelledby="gracias-titulo" aria-describedby="gracias-texto">
+    <div class="gracias__caja">
+      <div class="gracias__cabeza">
+        <div class="toldo toldo--gracias" aria-hidden="true"></div>
+        <img class="gracias__misifu" src="assets/img/misifu-gracias.png" alt="Misifu, el gatito de La Rejita, guiñando un ojo con un regalo" width="560" height="599" loading="lazy" decoding="async">
+      </div>
+      <h2 id="gracias-titulo" data-gracias-titulo tabindex="-1" data-foco>¡Gracias por tu pedido!</h2>
+      <p id="gracias-texto" data-gracias-texto>Termina de enviarlo en WhatsApp y te lo confirmamos ahí.</p>
+      <div class="gracias__acciones">
+        <a class="boton boton--tinta" href="#" target="_blank" rel="noopener" data-gracias-whatsapp>
+          <svg class="icono-marca" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.2a9.8 9.8 0 0 0-8.4 14.8L2.3 21.7l4.8-1.3A9.8 9.8 0 1 0 12 2.2Zm0 17.8a8 8 0 0 1-4.1-1.1l-.3-.2-2.8.8.8-2.8-.2-.3A8 8 0 1 1 12 20Zm4.4-6c-.2-.1-1.4-.7-1.7-.8-.2-.1-.4-.1-.5.1l-.8 1c-.1.2-.3.2-.5.1a6.6 6.6 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.5-.4h-.5a.9.9 0 0 0-.7.3 2.8 2.8 0 0 0-.9 2.1 4.9 4.9 0 0 0 1 2.6 11.2 11.2 0 0 0 4.3 3.8c1.6.7 2.2.7 3 .6a2.6 2.6 0 0 0 1.7-1.2 2.1 2.1 0 0 0 .1-1.2c0-.1-.2-.2-.5-.3Z"/></svg>
+          Abrir WhatsApp de nuevo
+        </a>
+        <button type="button" class="boton boton--borde" data-nuevo-pedido>Hacer un nuevo pedido</button>
+      </div>
+      <button type="button" class="vaciar gracias__cerrar" data-cerrar>Seguir viendo la carta</button>
+    </div>
+  </dialog>
+
+  <div class="todas__fondo" data-todas-fondo hidden></div>
+  <div class="todas" id="panel-categorias" data-todas role="dialog" aria-labelledby="todas-titulo" hidden>
+    <div class="todas__cabeza">
+      <span class="hoja__asa" aria-hidden="true"></span>
+      <p class="todas__titulo" id="todas-titulo">Todas las categorías</p>
+      <button type="button" class="boton-redondo" data-todas-cerrar aria-label="Cerrar categorías"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <ul class="todas__lista" data-todas-lista></ul>
+  </div>
+
+  <aside class="promo-tarjeta" data-promo aria-label="Promoción 2x1 en tragos" hidden>
+    <div class="promo-tarjeta__texto">
+      <p class="promo-tarjeta__titular"><span class="promo-tarjeta__emoji" aria-hidden="true">🍹</span> <span class="promo-tarjeta__2x1">2x1</span> en tragos</p>
+      <div class="promo-tarjeta__fila">
+        <p class="promo-tarjeta__hora">hasta las <span data-promo-hasta>10 pm</span></p>
+        <a class="promo-tarjeta__ver" href="#carta" data-promo-ver>Ver tragos <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <p class="promo-tarjeta__prueba" data-promo-prueba hidden>Modo de prueba</p>
+      <p class="promo-tarjeta__legal">Venta solo a mayores de 18 años. Tomar bebidas alcohólicas en exceso es dañino.</p>
+    </div>
+    <button type="button" class="promo-tarjeta__cerrar" data-promo-cerrar aria-label="Cerrar promoción"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </aside>
+
+  <p class="visualmente-oculto" aria-live="polite" data-anuncio></p>
+
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>

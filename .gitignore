@@ -1,0 +1,28 @@
+# ===== La Rejita Gourmet: lo que NO se sube a GitHub (el repositorio es público) =====
+
+# Datos internos del negocio (ventas, carta de Loyverse, PDF y tablas de trabajo)
+privado/
+*.csv
+*.tsv
+*.pdf
+*.xlsx
+*.xls
+
+# Archivos de trabajo y referencia (no los usa la página)
+referencia-diseno.md
+PRODUCT.md
+DESIGN.md
+.impeccable/
+
+# Originales de imágenes (la página usa las versiones optimizadas de assets/img/)
+*.png.jpg
+logo.png.jpg
+
+# Fotos originales: la página usa las versiones optimizadas de assets/img/productos/
+fotos/
+
+# Sistema y editores
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/

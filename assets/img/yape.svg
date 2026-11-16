@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 24" width="44" height="24" role="img" aria-label="Yape">
+  <!-- Marca de pago provisional (aproximación). Reemplazar por el logo oficial de Yape si se tiene el archivo. -->
+  <rect width="44" height="24" rx="6" fill="#742284"/>
+  <text x="22" y="16.6" text-anchor="middle" font-family="Arial Rounded MT Bold, Arial, Helvetica, sans-serif" font-weight="700" font-size="13" fill="#ffffff" letter-spacing="-0.3">yape</text>
+</svg>
