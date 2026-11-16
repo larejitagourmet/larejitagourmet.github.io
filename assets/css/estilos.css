@@ -975,7 +975,7 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 
 /* =========================================================
    Sexta versión: números que ruedan, hojas más suaves,
-   todas las categorías, foto referencial
+   todas las categorías
    ========================================================= */
 
 /* ---------- Números que ruedan ---------- */
@@ -993,13 +993,6 @@ h1, h2, h3 { letter-spacing: -0.01em; }
 .pedido.abierto .pedido__hoja { transition: transform 0.4s cubic-bezier(0.32, 0.72, 0, 1) !important; }
 
 
-/* ---------- Foto referencial (sabor sin foto propia) ---------- */
-.foto-ref {
-  position: absolute; left: 0.75rem; bottom: 0.75rem; z-index: 1;
-  padding: 0.3rem 0.7rem; border-radius: var(--r-pastilla);
-  background: rgb(23 18 15 / 0.72); color: var(--papel); font-size: 0.75rem; letter-spacing: 0.02em;
-}
-.pieza--agotada .foto-ref { bottom: 3.1rem; }
 
 /* ---------- Todas las categorías ---------- */
 .categorias__todas {
@@ -1272,9 +1265,9 @@ html.con-teclado [data-foco]:focus { outline: 2px solid currentColor; outline-of
   opacity: 0; transition: opacity 0.35s ease; z-index: 1;
 }
 .pieza__capa.visible { opacity: 1; }
-.pieza__foto .pieza__agregar, .pieza__foto .sello, .pieza__foto .foto-ref { z-index: 2; }
-.pieza--previa .pieza__agregar, .pieza--previa .sello, .pieza--previa .foto-ref { opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
-.pieza__agregar, .sello, .foto-ref { transition: opacity 0.2s ease; }
+.pieza__foto .pieza__agregar, .pieza__foto .sello { z-index: 2; }
+.pieza--previa .pieza__agregar, .pieza--previa .sello { opacity: 0; pointer-events: none; transition: opacity 0.2s ease; }
+.pieza__agregar, .sello { transition: opacity 0.2s ease; }
 @media (min-width: 60rem) and (hover: hover) {
   .grupo--portada .fila--con-foto { cursor: default; }
   .grupo--portada .fila--con-foto:hover .fila__nombre { color: var(--chicha); }

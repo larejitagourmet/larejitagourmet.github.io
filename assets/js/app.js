@@ -299,17 +299,19 @@
       return nombreValor(p, op.id, valorElegido(eleccion, op.id));
     }).join(" · ");
   }
-  /* Foto de lo elegido. Si el sabor elegido no tiene foto pero el producto sí tiene alguna,
-     se usa esa marcada como “referencial”. Sin ninguna foto devuelve null (y sale Misifu). */
+  /* Foto propia de lo elegido, nunca la de otro sabor. Si el producto tiene fotos por sabor (o por tipo),
+     solo vale la del valor elegido: un sabor sin foto (o una mezcla de dos sabores) no tiene foto y
+     se muestra a Misifu con "Pronto su foto". Sin fotos por sabor, vale la foto del producto. */
   function fotoDe(p, eleccion = {}) {
-    for (const op of p.opciones) {
+    const conFotos = p.opciones.filter((o) => o.valores.some((v) => v.foto));
+    if (!conFotos.length) return p.foto ? { src: p.foto } : null;
+    for (const op of conFotos) {
+      const elegido = eleccion[op.id];
+      if (Array.isArray(elegido) && elegido.length > 1) return null; // mezcla: no hay una foto propia
       const v = op.valores.find((x) => x.id === valorElegido(eleccion, op.id));
-      if (v?.foto) return { src: v.foto, ref: false };
+      if (v?.foto) return { src: v.foto };
     }
-    const porSabor = p.opciones.some((o) => o.valores.some((v) => v.foto));
-    const respaldo = p.foto || p.opciones.flatMap((o) => o.valores.filter((v) => v.foto).map((v) => v.foto))[0];
-    if (!respaldo) return null;
-    return { src: respaldo, ref: porSabor };
+    return null;
   }
   /* ---------- líneas de la carta ----------
      Los sabores o tipos (opción con "separar": true en productos.json) se muestran como líneas propias.
@@ -671,7 +673,7 @@
   }
   function htmlFoto(foto, nombre, prioridad) {
     if (foto) {
-      return `<img src="${esc(foto.src)}" alt="${esc(nombre)}" width="1200" height="1600" ${prioridad === "alta" ? 'fetchpriority="high"' : prioridad ? "" : 'loading="lazy"'} decoding="async" data-foto>${foto.ref ? '<span class="foto-ref">Foto referencial</span>' : ""}`;
+      return `<img src="${esc(foto.src)}" alt="${esc(nombre)}" width="1200" height="1600" ${prioridad === "alta" ? 'fetchpriority="high"' : prioridad ? "" : 'loading="lazy"'} decoding="async" data-foto>`;
     }
     return htmlPronto("claro");
   }
@@ -786,10 +788,10 @@
     const p = linea.p;
     return esSimpleLinea(linea) ? textoBase(precioBase(p, eleccionInicial(p, linea.preset))) : rangoPrecios(p, linea.restr).texto;
   }
-  /* Foto propia de la línea (no la referencial) */
+  /* Foto propia de la línea (sin foto propia: Misifu) */
   function fotoPropiaDe(linea) {
     const f = fotoDe(linea.p, eleccionInicial(linea.p, linea.preset));
-    return f && !f.ref ? f.src : "";
+    return f ? f.src : "";
   }
   /* Miniatura cuadrada de cada fila (celular y tablet). Al tocarla:
      - sin opciones y con foto: la foto se agranda en el centro (data-zoom);
@@ -813,7 +815,7 @@
     const precio = precioDeLinea(linea);
     const desc = r && r.mezcla ? "Elige 2 sabores, mitad y mitad." : p.descripcion;
     const resumen = resumenOpciones(linea);
-    // Foto propia de la línea (no la referencial): miniatura en celular y vista previa al pasar el mouse.
+    // Foto propia de la línea: miniatura en celular y vista previa al pasar el mouse.
     // Sin foto, la miniatura y la vista previa muestran a Misifu con “Pronto su foto”.
     const fotoPropia = fotoPropiaDe(linea);
     const datosFoto = ` data-foto-src="${esc(fotoPropia)}" data-foto-nombre="${esc(linea.nombre)}"`;
@@ -861,9 +863,7 @@
     cuerpo.innerHTML = conItems.map((c, indice) => {
       const items = lineasDeCategoria(c);
       const foto = (l) => fotoDe(l.p, eleccionInicial(l.p, l.preset));
-      const portada = items.find((l) => foto(l) && !foto(l).ref && !agotadoLinea(l))
-        || items.find((l) => foto(l) && !foto(l).ref)
-        || items.find((l) => foto(l));
+      const portada = items.find((l) => foto(l) && !agotadoLinea(l)) || items.find((l) => foto(l));
       const siguiente = conItems[indice + 1];
       const conPromo = promo && esCategoriaPromo(c);
       return `<section class="grupo${c.eventos ? " grupo--eventos" : ""}${portada ? " grupo--portada" : ""}" id="${c.id}" aria-labelledby="t-${c.id}">
@@ -1301,14 +1301,14 @@
   let mediaActual = null;
   function pintarMedia(foto, nombre) {
     const caja = $("[data-producto-media]", hojaProducto);
-    const clave = foto ? foto.src + (foto.ref ? "#ref" : "") : "pronto";
+    const clave = foto ? foto.src : "pronto";
     if (clave === mediaActual) return;
     const primera = mediaActual === null;
     mediaActual = clave;
     const nueva = document.createElement("div");
     nueva.className = "opciones__capa";
     nueva.innerHTML = foto
-      ? `<img src="${esc(foto.src)}" alt="${esc(nombre)}" width="1200" height="1600" decoding="async">${foto.ref ? '<span class="foto-ref">Foto referencial</span>' : ""}`
+      ? `<img src="${esc(foto.src)}" alt="${esc(nombre)}" width="1200" height="1600" decoding="async">`
       : htmlPronto("claro");
     // Si la foto no llega (servidor caído, conexión lenta), se muestra a Misifu en lugar de un ícono roto.
     const img = nueva.querySelector("img");
