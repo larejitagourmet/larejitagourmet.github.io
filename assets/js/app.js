@@ -791,6 +791,18 @@
     const f = fotoDe(linea.p, eleccionInicial(linea.p, linea.preset));
     return f && !f.ref ? f.src : "";
   }
+  /* Miniatura cuadrada de cada fila (celular y tablet). Al tocarla:
+     - sin opciones y con foto: la foto se agranda en el centro (data-zoom);
+     - con opciones: hace lo mismo que el “+” (abre su hoja de opciones);
+     - sin opciones y sin foto: es solo imagen (Misifu con su cartel). */
+  function htmlMini(linea, fotoPropia) {
+    const dentro = fotoPropia
+      ? `<img src="${esc(fotoPropia)}" alt="" width="1200" height="1600" loading="lazy" decoding="async">`
+      : htmlPronto("claro");
+    if (!esSimpleLinea(linea)) return `<button type="button" class="fila__mini" data-mini-opciones tabindex="-1" aria-hidden="true">${dentro}</button>`;
+    if (fotoPropia) return `<button type="button" class="fila__mini" data-zoom aria-label="Ver foto de ${esc(linea.nombre)}">${dentro}</button>`;
+    return `<span class="fila__mini" aria-hidden="true">${dentro}</span>`;
+  }
   const ETIQUETA_LOCAL = '<span class="etiqueta-local">Solo en el local</span>';
   function htmlFila(linea) {
     const p = linea.p;
@@ -801,11 +813,12 @@
     const precio = precioDeLinea(linea);
     const desc = r && r.mezcla ? "Elige 2 sabores, mitad y mitad." : p.descripcion;
     const resumen = resumenOpciones(linea);
-    // Foto propia de la línea (no la referencial): miniatura en celular y vista previa al pasar el mouse
+    // Foto propia de la línea (no la referencial): miniatura en celular y vista previa al pasar el mouse.
+    // Sin foto, la miniatura y la vista previa muestran a Misifu con “Pronto su foto”.
     const fotoPropia = fotoPropiaDe(linea);
-    const datosFoto = fotoPropia ? ` data-foto-src="${esc(fotoPropia)}" data-foto-nombre="${esc(linea.nombre)}" data-foto-precio="${esc(precio)}"` : "";
-    return `<li class="fila${sinStock ? " fila--agotada" : ""}${fotoPropia ? " fila--con-foto" : ""}" data-id="${p.id}" data-linea="${esc(linea.clave)}" data-buscar="${esc(textoBuscableLinea(linea))}"${datosFoto}>
-      ${fotoPropia ? `<img class="fila__mini" src="${esc(fotoPropia)}" alt="" width="1200" height="1600" loading="lazy" decoding="async">` : ""}
+    const datosFoto = ` data-foto-src="${esc(fotoPropia)}" data-foto-nombre="${esc(linea.nombre)}"`;
+    return `<li class="fila fila--con-foto${sinStock ? " fila--agotada" : ""}" data-id="${p.id}" data-linea="${esc(linea.clave)}" data-buscar="${esc(textoBuscableLinea(linea))}"${datosFoto}>
+      ${htmlMini(linea, fotoPropia)}
       <div class="fila__texto">
         <p class="fila__linea">
           <span class="fila__nombre">${esc(linea.nombre)}</span>
@@ -875,30 +888,43 @@
   }
 
   /* Vista previa en computadora: al pasar el mouse (o enfocar con teclado) por una línea con foto propia,
-     la foto grande cambia con un fundido a la de esa línea. Si la línea no tiene foto, se queda la última. */
+     la foto grande cambia con un fundido a la de esa línea. Si la línea no tiene foto, aparece Misifu
+     con “Pronto su foto” con el mismo fundido. */
   const conVistaPrevia = () => matchMedia("(min-width: 60rem) and (hover: hover)").matches;
   function vistaPrevia(grupo, fila) {
     const pieza = $(".grupo__portada .pieza", grupo);
     const marco = pieza && $(".pieza__foto", pieza);
+    if (!marco || fila.dataset.fotoSrc === undefined) return;
     const src = fila.dataset.fotoSrc;
-    if (!marco || !src) return;
-    if ((marco.dataset.activa || "") === src) return;
-    marco.dataset.activa = src;
+    const clave = src || "pronto";
     $(".pieza__nombre", pieza).textContent = fila.dataset.fotoNombre;
+    if (!marco.dataset.activa) {
+      // La primera vez, lo que se ve es la portada original
+      const original = $("img[data-foto]", marco);
+      marco.dataset.activa = original ? original.getAttribute("src") : "pronto";
+    }
+    if (marco.dataset.activa === clave) return;
+    marco.dataset.activa = clave;
     // Capa nueva encima, con fundido; las anteriores se quitan cuando la nueva ya se ve
-    const capa = document.createElement("img");
+    let capa;
+    if (src) {
+      capa = document.createElement("img");
+      capa.alt = "";
+      capa.decoding = "async";
+      capa.src = src;
+    } else {
+      capa = document.createElement("div");
+      capa.innerHTML = htmlPronto("claro");
+    }
     capa.className = "pieza__capa";
-    capa.alt = "";
-    capa.decoding = "async";
-    capa.src = src;
     marco.appendChild(capa);
     const viejas = $$(".pieza__capa", marco).filter((c) => c !== capa);
     const mostrar = () => requestAnimationFrame(() => {
       capa.classList.add("visible");
       setTimeout(() => viejas.forEach((c) => c.remove()), 400);
     });
-    if (capa.complete) mostrar(); else capa.addEventListener("load", mostrar, { once: true });
-    capa.addEventListener("error", () => capa.remove(), { once: true });
+    if (!src || capa.complete) mostrar(); else capa.addEventListener("load", mostrar, { once: true });
+    if (src) capa.addEventListener("error", () => capa.remove(), { once: true });
   }
   function conectarVistaPrevia() {
     const cuerpo = $("[data-carta]");
@@ -910,6 +936,148 @@
     };
     cuerpo.addEventListener("mouseover", entrar);
     cuerpo.addEventListener("focusin", entrar);
+    // Miniaturas de las filas: agrandar la foto o, si tiene opciones, lo mismo que el “+”
+    cuerpo.addEventListener("click", (e) => {
+      const z = e.target.closest("[data-zoom]");
+      if (z) { abrirZoom(z); return; }
+      const o = e.target.closest("[data-mini-opciones]");
+      if (o) $(".fila__control [data-abrir]", o.closest(".fila"))?.click();
+    });
+    conectarZoom();
+  }
+
+  /* ---------- Foto agrandada (miniaturas de la carta) ----------
+     La foto crece desde la miniatura hasta el centro (FLIP: solo transform) y el fondo se desenfoca
+     con un fundido de opacidad (el desenfoque no se anima). Se cierra tocando fuera, con la X, con
+     Escape o deslizando hacia abajo: mientras el dedo baja, la foto lo sigue 1:1 y el fondo se aclara
+     al mismo ritmo; al cerrar, vuelve a encogerse hasta su miniatura. */
+  const zoom = { origen: null, cerrando: false, ignorarClicHasta: 0 };
+  const reducido = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function zoomPartes() {
+    const d = $("[data-zoom-dialogo]");
+    return { d, caja: $("[data-zoom-caja]", d), foto: $("[data-zoom-foto]", d), fondo: $(".zoom__fondo", d) };
+  }
+  // Transformación que lleva la foto grande (r1) encima de la miniatura (r0); origen arriba a la izquierda
+  function flip(r0, r1) {
+    return `translate(${(r0.left - r1.left).toFixed(1)}px, ${(r0.top - r1.top).toFixed(1)}px) scale(${(r0.width / r1.width).toFixed(4)})`;
+  }
+  function abrirZoom(boton) {
+    const { d, caja, foto, fondo } = zoomPartes();
+    if (d.open) return;
+    const fila = boton.closest(".fila");
+    $$("img", foto).forEach((x) => x.remove());
+    const img = document.createElement("img");
+    img.src = fila.dataset.fotoSrc;
+    img.alt = fila.dataset.fotoNombre;
+    img.decoding = "async";
+    foto.prepend(img);
+    $("[data-zoom-nombre]", d).textContent = fila.dataset.fotoNombre;
+    $("[data-zoom-precio]", d).textContent = $(".fila__precio", fila)?.textContent || "";
+    zoom.origen = boton;
+    zoom.cerrando = false;
+    caja.style.transform = "";
+    fondo.style.opacity = "";
+    d.showModal();
+    if (!reducido()) {
+      const r0 = boton.getBoundingClientRect();
+      const r1 = foto.getBoundingClientRect();
+      foto.style.transition = "none";
+      foto.style.transform = flip(r0, r1);
+      void foto.offsetWidth;
+    }
+    boton.style.visibility = "hidden"; // la miniatura “se levanta” de su sitio
+    requestAnimationFrame(() => {
+      foto.style.transition = "";
+      foto.style.transform = "";
+      d.classList.add("abierto");
+      $(".zoom__cerrar", d).focus({ preventScroll: true });
+    });
+  }
+  function cerrarZoom() {
+    const { d, caja, foto, fondo } = zoomPartes();
+    if (!d.open || zoom.cerrando) return;
+    zoom.cerrando = true;
+    const b = zoom.origen;
+    d.classList.remove("abierto");
+    fondo.style.transition = "";
+    fondo.style.opacity = "";
+    const r0 = b && b.isConnected ? b.getBoundingClientRect() : null;
+    const seVe = r0 && r0.width && r0.bottom > 0 && r0.top < innerHeight;
+    let tiempo = 180;
+    if (reducido() || !seVe) {
+      foto.style.transition = "opacity 180ms ease";
+      foto.style.opacity = "0";
+    } else {
+      // Si se cierra mientras todavía crece, se parte de su lugar sin transformar (la transición
+      // retoma desde donde va, sin salto)
+      const r = foto.getBoundingClientRect();
+      const t = new DOMMatrix(getComputedStyle(foto).transform);
+      const r1 = { left: r.left - t.e, top: r.top - t.f, width: r.width / (t.a || 1) };
+      tiempo = 320;
+      foto.style.transition = "transform 320ms var(--entra)";
+      foto.style.transform = flip(r0, r1);
+    }
+    setTimeout(() => {
+      d.close();
+      ["transition", "transform", "opacity"].forEach((p) => { foto.style[p] = ""; });
+      caja.style.transition = "";
+      caja.style.transform = "";
+      if (b) { b.style.visibility = ""; if (b.isConnected) b.focus({ preventScroll: true }); }
+      zoom.origen = null;
+      zoom.cerrando = false;
+    }, tiempo);
+  }
+  function conectarZoom() {
+    const { d, caja, fondo } = zoomPartes();
+    d.addEventListener("cancel", (e) => { e.preventDefault(); cerrarZoom(); });
+    d.addEventListener("click", (e) => {
+      if (Date.now() < zoom.ignorarClicHasta) return; // el dedo que suelta un arrastre no “toca”
+      if (e.target.closest("[data-zoom-cerrar]")) cerrarZoom();
+    });
+    d.addEventListener("wheel", (e) => e.preventDefault(), { passive: false });
+    let g = null;
+    d.addEventListener("pointerdown", (e) => {
+      g = null;
+      if (zoom.cerrando || !d.classList.contains("abierto") || e.target.closest("button") || !e.isPrimary) return;
+      g = { y0: e.clientY, y: 0, arrastra: false, id: e.pointerId, muestras: [] };
+    });
+    d.addEventListener("pointermove", (e) => {
+      if (!g || e.pointerId !== g.id) return;
+      const dy = e.clientY - g.y0;
+      if (!g.arrastra) {
+        if (Math.abs(dy) < 6) return;
+        g.arrastra = true;
+        g.base = dy; // empieza desde donde está el dedo, sin salto
+        try { d.setPointerCapture(e.pointerId); } catch {}
+        caja.style.transition = "none";
+        fondo.style.transition = "none";
+      }
+      let y = dy - g.base;
+      if (y < 0) y = -Math.min(24, Math.sqrt(-y) * 2); // hacia arriba: resistencia, no pared
+      g.y = y;
+      g.muestras.push({ y, t: e.timeStamp });
+      while (g.muestras.length > 2 && e.timeStamp - g.muestras[0].t > 100) g.muestras.shift();
+      caja.style.transform = `translateY(${y.toFixed(1)}px)`;
+      fondo.style.opacity = String(Math.max(0, 1 - Math.max(0, y) / (innerHeight * 0.5)).toFixed(3));
+    });
+    const soltar = () => {
+      if (!g) return;
+      const arrastro = g.arrastra;
+      const { y, muestras: m } = g;
+      g = null;
+      if (!arrastro) return;
+      zoom.ignorarClicHasta = Date.now() + 400;
+      const a = m[0];
+      const b = m[m.length - 1];
+      const velocidad = a && b && b.t > a.t ? (b.y - a.y) / (b.t - a.t) : 0; // px por ms
+      if (y > caja.offsetHeight / 3 || (velocidad > 0.45 && y > 16)) { cerrarZoom(); return; }
+      caja.style.transition = "transform 400ms var(--entra)";
+      caja.style.transform = "";
+      fondo.style.transition = "";
+      fondo.style.opacity = "";
+    };
+    d.addEventListener("pointerup", soltar);
+    d.addEventListener("pointercancel", soltar);
   }
   function marcarChip(suave = true) {
     const lista = $("[data-categorias]");
@@ -1560,7 +1728,8 @@
     hoja.addEventListener("touchstart", (e) => {
       g = null;
       if (!esCelular() || !abierta() || e.touches.length > 1) return;
-      if (e.target.closest("input:not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable]")) return;
+      // Los campos y la rueda de la hora (que se desliza en vertical) nunca empiezan un arrastre
+      if (e.target.closest("input:not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable], [data-sin-arrastre]")) return;
       const t = e.touches[0];
       const caja = desplazable();
       g = { x0: t.clientX, y0: t.clientY, caja: caja && caja.contains(e.target) ? caja : null, estado: "espera", y: 0, base: 0, alto: 1, muestras: [] };
@@ -1690,26 +1859,23 @@
     if (iso === a.iso) desde = Math.max(desde, Math.ceil((a.min + REGLAS.minutosMinimos) / 15) * 15);
     return desde;
   }
-  function diasPosibles(m = modalidad()) {
-    const lista = [];
-    let iso = sumarDias(limaAhora().iso, diasMinimos());
-    for (let i = 0; lista.length < 7 && i < 30; i++, iso = sumarDias(iso, 1)) {
-      if (abreElDia(iso) && primeraHora(iso) <= ultimaHora(m)) lista.push(iso);
-    }
-    return lista;
+  /* Días que se pueden elegir en el calendario: desde el primero que permite la anticipación del pedido
+     y hasta 30 días después; de martes a domingo y solo si todavía queda alguna hora ese día. */
+  const DIAS_CALENDARIO = 30;
+  function primerDia() { return sumarDias(limaAhora().iso, diasMinimos()); }
+  function ultimoDia() { return sumarDias(primerDia(), DIAS_CALENDARIO); }
+  function diaPosible(iso, m = modalidad()) {
+    return iso >= primerDia() && iso <= ultimoDia() && abreElDia(iso) && primeraHora(iso) <= ultimaHora(m);
   }
+  function primerDiaPosible(m = modalidad()) {
+    for (let iso = primerDia(), fin = ultimoDia(); iso <= fin; iso = sumarDias(iso, 1)) if (diaPosible(iso, m)) return iso;
+    return null;
+  }
+  /* Horas de atención de un día, cada 15 minutos (en minutos desde la medianoche) */
   function horasDelDia(iso, m = modalidad()) {
     const lista = [];
-    const primera = primeraHora(iso);
-    for (let min = APERTURA; min <= ultimaHora(m); min += 15) lista.push({ min, cerca: min < primera });
+    for (let min = primeraHora(iso); min <= ultimaHora(m); min += 15) lista.push(min);
     return lista;
-  }
-  function horaMasCercana(m = modalidad()) {
-    for (const iso of diasPosibles(m)) {
-      const h = horasDelDia(iso, m).find((x) => !x.cerca);
-      if (h) return { iso, min: h.min };
-    }
-    return null;
   }
   /* “Hoy, viernes 6 de noviembre, 8 pm” */
   function textoMomento(iso, min) {
@@ -1718,43 +1884,296 @@
     const inicio = ["Hoy", "Mañana"].includes(dia) ? `${dia}, ${fecha}` : fecha.charAt(0).toUpperCase() + fecha.slice(1);
     return `${inicio}, ${textoHora(min)}`;
   }
+  function fechaLarga(iso) {
+    return new Intl.DateTimeFormat("es-PE", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(new Date(iso + "T12:00:00Z")).replace(",", "");
+  }
+
+  /* ---------- Día y hora: calendario + rueda ----------
+     El calendario es el mismo de Eventos, dentro de la hoja. Al elegir el día se despliega (.plegable)
+     una rueda de hora y minutos, como la alarma del celular: lo que queda en la banda del centro es lo
+     elegido. La rueda arranca en la primera hora posible y solo muestra las horas de atención de ese día. */
+  const MINUTOS = [0, 15, 30, 45];
+  let mesHorario = null; // primer día del mes que muestra el calendario ("AAAA-MM-01")
+  function armarHorario(caja) {
+    const flecha = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d < 0 ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"}"/></svg>`;
+    caja.innerHTML = `
+      <p class="horario__titulo" id="horario-titulo" data-horario-titulo></p>
+      <div class="horario__nota" data-horario-nota></div>
+      <p class="horario__resumen" data-horario-resumen></p>
+      <div class="calendario calendario--fijo" role="group" aria-labelledby="horario-titulo">
+        <div class="calendario__cabeza">
+          <button type="button" class="calendario__mes" data-mes-pedido="-1" aria-label="Mes anterior">${flecha(-1)}</button>
+          <p class="calendario__titulo" data-horario-mes aria-live="polite"></p>
+          <button type="button" class="calendario__mes" data-mes-pedido="1" aria-label="Mes siguiente">${flecha(1)}</button>
+        </div>
+        <div class="calendario__semana" aria-hidden="true"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+        <div class="calendario__dias" data-horario-dias></div>
+        <p class="calendario__pie" data-horario-pie></p>
+      </div>
+      <div class="plegable horario__pliegue" data-horario-pliegue inert>
+        <div class="plegable__interior">
+          <p class="horario__titulo">Hora</p>
+          <div class="rueda" data-rueda data-sin-arrastre>
+            <div class="rueda__banda" aria-hidden="true"></div>
+            <div class="rueda__col" data-rueda-col="h" tabindex="0" role="spinbutton" aria-label="Hora"><ul aria-hidden="true"></ul></div>
+            <span class="rueda__sep" aria-hidden="true">:</span>
+            <div class="rueda__col" data-rueda-col="m" tabindex="0" role="spinbutton" aria-label="Minutos"><ul aria-hidden="true">${MINUTOS.map((m) => `<li data-v="${m}">${String(m).padStart(2, "0")}</li>`).join("")}</ul></div>
+            <span class="rueda__ampm" aria-hidden="true" data-rueda-ampm>pm</span>
+          </div>
+          <p class="rueda__nota" data-rueda-nota></p>
+        </div>
+      </div>
+      <small class="campo__error" data-error="horario"></small>`;
+    caja.dataset.listo = "1";
+    conectarRueda(caja);
+  }
   function pintarHorario() {
     const caja = $("[data-horario]");
     const m = modalidad();
     caja.hidden = !pideHorario(m);
     if (caja.hidden) return;
-    const dias = diasPosibles(m);
-    if (!dias.includes(horario.dia)) horario = { dia: dias[0] || null, hora: null };
+    if (!caja.dataset.listo) armarHorario(caja);
+    // Lo elegido tiene que seguir siendo posible (el reloj avanza y la modalidad cambia el cierre)
+    if (horario.dia && !diaPosible(horario.dia, m)) horario = { dia: null, hora: null };
     const horas = horario.dia ? horasDelDia(horario.dia, m) : [];
-    if (horario.hora !== null && !horas.some((h) => h.min === horario.hora && !h.cerca)) horario.hora = null;
-    const titulo = m === MOD.reserva ? "Día y hora de tu reserva" : m === MOD.recojo ? "¿Cuándo lo recoges?" : "¿Cuándo te lo llevamos?";
+    if (horario.dia && !horas.includes(horario.hora)) {
+      // Sin hora, la primera; si la elegida ya no vale, la más cercana
+      horario.hora = horario.hora === null ? horas[0]
+        : horas.reduce((a, b) => (Math.abs(b - horario.hora) < Math.abs(a - horario.hora) ? b : a), horas[0]);
+    }
+    $("[data-horario-titulo]", caja).textContent = m === MOD.reserva ? "Día y hora de tu reserva" : m === MOD.recojo ? "¿Cuándo lo recoges?" : "¿Cuándo te lo llevamos?";
+
     const dm = diasMinimos();
-    const nota = dm > 1 ? `Tu pedido tiene productos por encargo: puedes elegir desde dentro de ${dm} días.` : dm === 1 ? "Tu pedido tiene productos para otro día: puedes elegir desde mañana." : "";
     const notaBoxes = fechaPorConfirmar() ? ` Si el modelo de tus boxes es elaborado, puede tomar hasta ${Math.max(...lineasValidas().map((l) => porId.get(l.producto).anticipacionMax || 0))} días: te confirmamos la fecha por WhatsApp.` : "";
     // Si solo los boxes ponen la anticipación, se muestra su texto tal cual
     const soloBoxes = fechaPorConfirmar() && lineasValidas().every((l) => { const p = porId.get(l.producto); return p.tipo !== "encargo" || p.anticipacionMax > p.anticipacion; });
-    const notaFinal = soloBoxes ? textoAnticipacionLargo(lineasValidas().map((l) => porId.get(l.producto)).find((p) => p.anticipacionMax > p.anticipacion)) : nota + notaBoxes;
     // Productos del día junto con algo por encargo: todo sale el día elegido, y se avisa claro
     const delDia = dm > 1 && lineasValidas().some((l) => !l.otroDia && porId.get(l.producto).tipo !== "encargo");
-    const fechaEntrega = horario.dia ? new Intl.DateTimeFormat("es-PE", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(new Date(horario.dia + "T12:00:00Z")).replace(",", "") : "";
-    const avisoEncargo = delDia && fechaEntrega ? `Tu pedido incluye productos por encargo, así que todo se entrega el ${fechaEntrega}${notaBoxes ? " (fecha sujeta a confirmación)" : ""}. Si quieres algo para hoy, haz un pedido aparte.${notaBoxes}` : "";
-    const avisoPrevio = $("[data-aviso-hora]", caja);
-    const avisoHtml = avisoPrevio && !avisoPrevio.hidden ? avisoPrevio.innerHTML : "";
-    caja.innerHTML = `
-      <p class="horario__titulo">${titulo}</p>
-      ${avisoEncargo ? `<p class="aviso aviso--encargo" data-aviso-encargo>${esc(avisoEncargo)}</p>` : notaFinal ? `<p class="pedido__ayuda">${esc(notaFinal)}</p>` : ""}
-      <div class="horario__dias" role="group" aria-label="Día">${dias.map((iso) => `<button type="button" class="horario__dia" data-dia-pedido="${iso}" aria-pressed="${iso === horario.dia}">${esc(textoDia(iso, { corto: true }))}</button>`).join("")}</div>
-      <div class="horario__horas" role="group" aria-label="Hora">${horas.map((h) => `<button type="button" class="horario__hora${h.cerca ? " horario__hora--cerca" : ""}" data-hora-pedido="${h.min}" aria-pressed="${h.min === horario.hora}"${h.cerca ? ' aria-disabled="true"' : ""}>${textoHora(h.min)}</button>`).join("")}</div>
-      <p class="aviso aviso--hora" data-aviso-hora role="status"${avisoHtml ? "" : " hidden"}>${avisoHtml}</p>
-      <small class="campo__error" data-error="horario"></small>`;
+    const avisoEncargo = delDia && horario.dia ? `Tu pedido incluye productos por encargo, así que todo se entrega el ${fechaLarga(horario.dia)}${notaBoxes ? " (fecha sujeta a confirmación)" : ""}. Si quieres algo para hoy, haz un pedido aparte.${notaBoxes}` : "";
+    const nota = avisoEncargo ? `<p class="aviso aviso--encargo" data-aviso-encargo>${esc(avisoEncargo)}</p>`
+      : soloBoxes ? `<p class="pedido__ayuda">${esc(textoAnticipacionLargo(lineasValidas().map((l) => porId.get(l.producto)).find((p) => p.anticipacionMax > p.anticipacion)))}</p>`
+      : notaBoxes ? `<p class="pedido__ayuda">${esc(notaBoxes.trim())}</p>` : "";
+    const cajaNota = $("[data-horario-nota]", caja);
+    if (cajaNota.innerHTML !== nota) cajaNota.innerHTML = nota;
+    cajaNota.hidden = !nota;
+
+    const resumen = $("[data-horario-resumen]", caja);
+    if (horario.dia) {
+      const dia = textoDia(horario.dia);
+      const cuando = dia === "Hoy" ? `hoy, ${fechaLarga(horario.dia)}` : dia === "Mañana" ? `mañana, ${fechaLarga(horario.dia)}` : `el ${fechaLarga(horario.dia)}`;
+      const verbo = m === MOD.reserva ? "Te esperamos" : m === MOD.recojo ? "Recoges" : "Te lo llevamos";
+      resumen.innerHTML = `${verbo} <strong>${esc(cuando)}</strong>, a las <strong>${esc(textoHora(horario.hora))}</strong>.`;
+      resumen.classList.remove("horario__resumen--vacio");
+    } else {
+      resumen.textContent = primerDiaPosible(m) ? "Elige el día en el calendario." : "No hay días disponibles para este pedido. Escríbenos por WhatsApp.";
+      resumen.classList.add("horario__resumen--vacio");
+    }
+    $("[data-horario-pie]", caja).textContent = dm > 1 ? `Tu pedido tiene productos por encargo: puedes elegir desde el ${fechaLarga(primerDia())}.`
+      : dm === 1 ? "Tu pedido tiene productos para otro día: puedes elegir desde mañana."
+      : `Atendemos de martes a domingo, de ${textoHora(APERTURA)} a ${textoHora(CIERRE)}.`;
+    pintarCalendarioPedido(caja, m);
+
+    const pliegue = $("[data-horario-pliegue]", caja);
+    pliegue.classList.toggle("plegable--abierto", Boolean(horario.dia));
+    pliegue.inert = !horario.dia;
+    if (horario.dia) pintarRueda(caja, horas);
   }
-  function avisoHoraCercana() {
-    const aviso = $("[data-aviso-hora]");
-    const cercana = horaMasCercana();
-    aviso.hidden = false;
-    aviso.innerHTML = cercana
-      ? `Necesitamos al menos ${REGLAS.minutosMinimos} minutos para preparar tu pedido. La hora más cercana disponible es <strong>${esc(textoMomento(cercana.iso, cercana.min))}</strong>. <button type="button" class="aviso__accion" data-elegir-cercana="${cercana.iso}|${cercana.min}">Elegir esa hora</button>`
-      : `Necesitamos al menos ${REGLAS.minutosMinimos} minutos para preparar tu pedido.`;
+  function pintarCalendarioPedido(caja, m) {
+    const desde = primerDia();
+    const hasta = ultimoDia();
+    const hoy = limaAhora().iso;
+    const mesDe = (iso) => iso.slice(0, 8) + "01";
+    if (!mesHorario) mesHorario = mesDe(horario.dia || primerDiaPosible(m) || desde);
+    if (mesHorario < mesDe(desde)) mesHorario = mesDe(desde);
+    if (mesHorario > mesDe(hasta)) mesHorario = mesDe(hasta);
+    const v = new Date(mesHorario + "T12:00:00Z");
+    const nombre = new Intl.DateTimeFormat("es-PE", { timeZone: "UTC", month: "long", year: "numeric" }).format(v);
+    const titulo = $("[data-horario-mes]", caja);
+    const textoMes = nombre.charAt(0).toUpperCase() + nombre.slice(1);
+    if (titulo.textContent !== textoMes) titulo.textContent = textoMes;
+    $('[data-mes-pedido="-1"]', caja).disabled = mesHorario <= mesDe(desde);
+    $('[data-mes-pedido="1"]', caja).disabled = mesHorario >= mesDe(hasta);
+    const rejilla = $("[data-horario-dias]", caja);
+    const enfocado = rejilla.contains(document.activeElement) ? document.activeElement.dataset.diaPedido : null;
+    const inicio = (v.getUTCDay() + 6) % 7; // lunes primero
+    const total = new Date(Date.UTC(v.getUTCFullYear(), v.getUTCMonth() + 1, 0)).getUTCDate();
+    let html = "";
+    for (let i = 0; i < inicio; i++) html += '<span class="calendario__vacio" aria-hidden="true"></span>';
+    for (let d = 1; d <= total; d++) {
+      const iso = mesHorario.slice(0, 8) + String(d).padStart(2, "0");
+      const ok = diaPosible(iso, m);
+      const sel = iso === horario.dia;
+      html += `<button type="button" class="calendario__dia${iso === hoy ? " calendario__dia--hoy" : ""}" data-dia-pedido="${iso}" aria-pressed="${sel}" aria-label="${esc(fechaLarga(iso))}${ok ? "" : ", no disponible"}"${ok ? "" : " disabled"} tabindex="-1">${d}</button>`;
+    }
+    if (rejilla.innerHTML !== html) rejilla.innerHTML = html;
+    // Un solo día enfocable con Tab (el elegido o el primero posible); las flechas mueven entre días
+    const activos = $$(".calendario__dia:not([disabled])", rejilla);
+    activos.forEach((b) => { b.tabIndex = -1; });
+    const foco = activos.find((b) => b.dataset.diaPedido === (enfocado || horario.dia)) || activos[0];
+    if (foco) foco.tabIndex = 0;
+    if (enfocado && foco && document.activeElement !== foco) foco.focus({ preventScroll: true });
+  }
+
+  /* La rueda: cada columna se desplaza con imán (scroll-snap) y lo que queda en la banda es lo elegido.
+     Al desplazar, cada número se inclina y se apaga según su distancia a la banda (solo transform y
+     opacity, en un cuadro por evento). Los minutos que no se pueden quedan apagados; si la rueda se
+     detiene en uno, salta al más cercano. */
+  function ruedaPartes(caja = $("[data-horario]")) {
+    return { rueda: $("[data-rueda]", caja), colH: $('[data-rueda-col="h"]', caja), colM: $('[data-rueda-col="m"]', caja) };
+  }
+  const altoFila = (col) => col.querySelector("li")?.offsetHeight || 0;
+  function inclinar(col) {
+    const alto = altoFila(col);
+    if (!alto) return;
+    const centro = col.scrollTop / alto;
+    $$("li", col).forEach((li, i) => {
+      const d = i - centro;
+      const a = Math.min(Math.abs(d), 2.5);
+      li.style.transform = `rotateX(${(-d * 20).toFixed(1)}deg) scale(${(1 - a * 0.06).toFixed(3)})`;
+      li.style.opacity = (1 - a * 0.3).toFixed(3);
+    });
+  }
+  function irA(col, i, suave) {
+    const alto = altoFila(col);
+    if (!alto) return;
+    if (Math.abs(col.scrollTop - i * alto) < 1) return; // ya está ahí: no hay desplazamiento que esperar
+    if (suave && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      col.dataset.moviendo = "1";
+      // Si el navegador no avisa el final del desplazamiento, se libera igual
+      clearTimeout(col._liberar);
+      col._liberar = setTimeout(() => { delete col.dataset.moviendo; }, 900);
+      col.scrollTo({ top: i * alto, behavior: "smooth" });
+    } else {
+      col.scrollTop = i * alto;
+      inclinar(col);
+    }
+  }
+  function pintarRueda(caja, horas) {
+    const { colH, colM } = ruedaPartes(caja);
+    const hs = [...new Set(horas.map((x) => Math.floor(x / 60)))];
+    const clave = hs.join(",");
+    if (colH.dataset.clave !== clave) {
+      $("ul", colH).innerHTML = hs.map((h) => `<li data-v="${h}">${h % 12 || 12}</li>`).join("");
+      colH.dataset.clave = clave;
+    }
+    const h = Math.floor(horario.hora / 60);
+    const mm = horario.hora % 60;
+    $$("li", colM).forEach((li) => li.classList.toggle("rueda__no", !horas.includes(h * 60 + Number(li.dataset.v))));
+    colH.setAttribute("aria-valuetext", `${h % 12 || 12} ${h < 12 ? "am" : "pm"}`);
+    colH.setAttribute("aria-valuenow", String(h));
+    colM.setAttribute("aria-valuetext", `${mm} minutos`);
+    colM.setAttribute("aria-valuenow", String(mm));
+    $("[data-rueda-ampm]", caja).textContent = h < 12 ? "am" : "pm";
+    $("[data-rueda-nota]", caja).textContent = horario.dia === limaAhora().iso
+      ? `Hoy, desde las ${textoHora(horas[0])}: necesitamos ${REGLAS.minutosMinimos} minutos para prepararlo.`
+      : `De ${textoHora(horas[0])} a ${textoHora(horas[horas.length - 1])}.`;
+    sincronizarRueda(caja);
+  }
+  // Lleva cada columna a lo elegido, sin animación, salvo que el cliente la esté moviendo
+  function sincronizarRueda(caja = $("[data-horario]")) {
+    if (!horario.dia || horario.hora === null) return;
+    const { colH, colM } = ruedaPartes(caja);
+    const hs = $$("li", colH).map((li) => Number(li.dataset.v));
+    [[colH, hs.indexOf(Math.floor(horario.hora / 60))], [colM, MINUTOS.indexOf(horario.hora % 60)]].forEach(([col, i]) => {
+      const alto = altoFila(col);
+      if (!alto || col.dataset.moviendo) return;
+      if (Math.round(col.scrollTop / alto) !== i || Math.abs(col.scrollTop - i * alto) > 1) col.scrollTop = i * alto;
+      inclinar(col);
+    });
+  }
+  // Cuando la rueda se detiene: se lee lo que quedó en la banda
+  function asentar(col) {
+    const caja = $("[data-horario]");
+    const { colH, colM } = ruedaPartes(caja);
+    if (!horario.dia || horario.hora === null) return;
+    const horas = horasDelDia(horario.dia);
+    const items = $$("li", col);
+    const i = Math.max(0, Math.min(items.length - 1, Math.round(col.scrollTop / (altoFila(col) || 1))));
+    let h = Math.floor(horario.hora / 60);
+    let mm = horario.hora % 60;
+    if (col === colH) h = Number(items[i].dataset.v); else mm = Number(items[i].dataset.v);
+    let elegida = h * 60 + mm;
+    if (!horas.includes(elegida)) {
+      const deLaHora = horas.filter((x) => Math.floor(x / 60) === h);
+      elegida = deLaHora.reduce((a, b) => (Math.abs(b - elegida) < Math.abs(a - elegida) ? b : a), deLaHora[0]);
+    }
+    if (MINUTOS.indexOf(elegida % 60) !== Math.round(colM.scrollTop / (altoFila(colM) || 1))) irA(colM, MINUTOS.indexOf(elegida % 60), true);
+    if (elegida === horario.hora) return;
+    horario.hora = elegida;
+    pintarTotales(); // la hora cambia la promo 2x1 y el resumen
+  }
+  function conectarRueda(caja) {
+    const { rueda, colH, colM } = ruedaPartes(caja);
+    [colH, colM].forEach((col) => {
+      let cuadro = 0;
+      let espera = 0;
+      const detenida = () => { clearTimeout(espera); delete col.dataset.moviendo; asentar(col); };
+      col.addEventListener("scroll", () => {
+        col.dataset.moviendo = "1";
+        cancelAnimationFrame(cuadro);
+        cuadro = requestAnimationFrame(() => inclinar(col));
+        clearTimeout(espera);
+        espera = setTimeout(detenida, 160);
+      }, { passive: true });
+      col.addEventListener("scrollend", detenida);
+      col.addEventListener("click", (e) => {
+        const li = e.target.closest("li");
+        if (li) irA(col, $$("li", col).indexOf(li), true);
+      });
+      col.addEventListener("keydown", (e) => {
+        const n = $$("li", col).length;
+        const actual = Math.round(col.scrollTop / (altoFila(col) || 1));
+        // Como un selector de números: flecha arriba sube el valor
+        const destino = { ArrowUp: actual + 1, ArrowDown: actual - 1, PageUp: actual + 2, PageDown: actual - 2, Home: 0, End: n - 1 }[e.key];
+        if (destino === undefined) return;
+        e.preventDefault();
+        irA(col, Math.max(0, Math.min(n - 1, destino)), false); // con teclado, sin animación
+        asentar(col);
+      });
+    });
+    // Mientras la hoja está cerrada la rueda no mide nada: al verse, se coloca en lo elegido
+    if ("ResizeObserver" in window) new ResizeObserver(() => sincronizarRueda(caja)).observe(rueda);
+  }
+  function moverMesHorario(paso) {
+    const v = new Date(mesHorario + "T12:00:00Z");
+    v.setUTCMonth(v.getUTCMonth() + paso, 1);
+    mesHorario = v.toISOString().slice(0, 10);
+    pintarHorario();
+  }
+  // Flechas en el calendario: de día en día o de semana en semana, saltando los que no se pueden
+  function teclaCalendarioPedido(e) {
+    const b = e.target.closest("[data-dia-pedido]");
+    const paso = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[e.key];
+    if (!b || !paso) return;
+    e.preventDefault();
+    let iso = b.dataset.diaPedido;
+    for (let i = 0; i < 6; i++) {
+      iso = sumarDias(iso, paso);
+      if (iso < primerDia() || iso > ultimoDia()) return;
+      if (diaPosible(iso)) break;
+    }
+    if (!diaPosible(iso)) return;
+    if (iso.slice(0, 8) + "01" !== mesHorario) { mesHorario = iso.slice(0, 8) + "01"; pintarHorario(); }
+    const caja = $("[data-horario]");
+    const nuevo = $(`[data-dia-pedido="${iso}"]`, caja);
+    if (nuevo) { $$("[data-dia-pedido]", caja).forEach((x) => { x.tabIndex = -1; }); nuevo.tabIndex = 0; nuevo.focus({ preventScroll: true }); }
+  }
+  function elegirDiaPedido(iso) {
+    const abrir = !horario.dia;
+    horario = { dia: iso, hora: horario.hora }; // la hora elegida se mantiene si ese día también se puede (si no, la más cercana)
+    pintarTotales();
+    $(`[data-dia-pedido="${iso}"]`)?.focus({ preventScroll: true });
+    anunciar(`Elegiste ${textoMomento(horario.dia, horario.hora)}. Puedes cambiar la hora en la rueda.`);
+    // Si la rueda se acaba de desplegar fuera de la vista, la hoja baja lo justo para mostrarla
+    if (abrir) {
+      setTimeout(() => {
+        const rueda = $("[data-rueda]");
+        const cuerpo = rueda?.closest(".pedido__cuerpo");
+        if (!cuerpo) return;
+        const falta = rueda.getBoundingClientRect().bottom + 16 - cuerpo.getBoundingClientRect().bottom;
+        if (falta > 0) cuerpo.scrollBy({ top: falta, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+      }, 420);
+    }
   }
 
   /* ---------- promo 2x1 en tragos ---------- */
@@ -1846,7 +2265,6 @@
     const volver = quitadasLocal;
     ocultarAvisoLocal();
     formPedido().modalidad.value = MOD.reserva;
-    horario.hora = null;
     volver.forEach((nueva) => {
       const existe = lineas.find((l) => claveLinea(l) === claveLinea(nueva));
       if (existe) existe.cantidad += nueva.cantidad; else lineas.push(nueva);
@@ -1858,7 +2276,7 @@
 
   function pintarPedido() {
     // Con algo “solo en el local” en el pedido, la modalidad es reserva
-    if (lineasLocal().length && modalidad() !== MOD.reserva) { formPedido().modalidad.value = MOD.reserva; horario.hora = null; }
+    if (lineasLocal().length && modalidad() !== MOD.reserva) { formPedido().modalidad.value = MOD.reserva; }
     const ls = lineasValidas();
     const n = unidades();
     const contador = $("[data-contador]");
@@ -2018,8 +2436,9 @@
     marcarError("nombre", d.nombre.trim() ? "" : "Escribe tu nombre para saber a quién atender.");
     marcarError("direccion", delivery && !d.direccion.trim() ? "Necesitamos la dirección para el delivery." : "");
     if (pideHorario(m)) {
-      const falta = !horario.dia ? "No hay días disponibles para este pedido. Escríbenos por WhatsApp." : horario.hora === null ? (reserva ? "Elige la hora de tu reserva." : delivery ? "Elige la hora de entrega." : "Elige la hora de recojo.") : "";
-      marcarError("horario", falta, $(".horario__hora:not([aria-disabled])", form) || $(".horario__dia", form));
+      const falta = horario.dia ? "" : !primerDiaPosible(m) ? "No hay días disponibles para este pedido. Escríbenos por WhatsApp."
+        : reserva ? "Elige en el calendario el día de tu reserva." : delivery ? "Elige en el calendario el día de entrega." : "Elige en el calendario el día de recojo.";
+      marcarError("horario", falta, $(".horario .calendario__dia[tabindex=\"0\"]", form) || $(".horario .calendario__mes", form));
     }
     if (reserva && saldo > 0 && d.saldo === "Efectivo") {
       marcarError("conCuanto", conCuanto === null ? "Escribe con cuánto pagarás el saldo." : conCuanto < saldo ? `El monto debe ser de al menos ${soles(saldo)}.` : "");
@@ -2791,8 +3210,6 @@
     const form = $("[data-form-pedido]");
     form.addEventListener("change", (e) => {
       if (e.target.name === "modalidad") {
-        horario.hora = null;
-        $("[data-aviso-hora]") && ($("[data-aviso-hora]").hidden = true);
         // Delivery o recojo: las infusiones (solo en el local) salen del pedido, con un aviso
         if (e.target.value !== MOD.reserva) quitarLineasLocal(); else ocultarAvisoLocal();
         pintarTotales();
@@ -2803,34 +3220,12 @@
       }
     });
     form.addEventListener("input", (e) => { if (e.target.name === "conCuanto") pintarTotales(); });
+    form.addEventListener("keydown", teclaCalendarioPedido);
     form.addEventListener("click", (e) => {
       const dia = e.target.closest("[data-dia-pedido]");
-      if (dia) {
-        horario = { dia: dia.dataset.diaPedido, hora: null };
-        pintarTotales();
-        $(`[data-dia-pedido="${horario.dia}"]`, form)?.focus({ preventScroll: true });
-        return;
-      }
-      const hora = e.target.closest("[data-hora-pedido]");
-      if (hora) {
-        if (hora.getAttribute("aria-disabled") === "true") { avisoHoraCercana(); return; }
-        horario.hora = Number(hora.dataset.horaPedido);
-        $("[data-aviso-hora]").hidden = true;
-        pintarTotales();
-        $(`[data-hora-pedido="${horario.hora}"]`, form)?.focus({ preventScroll: true });
-        anunciar(`Elegiste ${textoMomento(horario.dia, horario.hora)}.`);
-        return;
-      }
-      const cercana = e.target.closest("[data-elegir-cercana]");
-      if (cercana) {
-        const [iso, min] = cercana.dataset.elegirCercana.split("|");
-        horario = { dia: iso, hora: Number(min) };
-        $("[data-aviso-hora]").hidden = true;
-        pintarTotales();
-        $(`[data-hora-pedido="${horario.hora}"]`, form)?.focus({ preventScroll: true });
-        anunciar(`Elegiste ${textoMomento(horario.dia, horario.hora)}.`);
-        return;
-      }
+      if (dia) { if (!dia.disabled) elegirDiaPedido(dia.dataset.diaPedido); return; }
+      const mes = e.target.closest("[data-mes-pedido]");
+      if (mes) { moverMesHorario(Number(mes.dataset.mesPedido)); return; }
       const personas = e.target.closest("[data-personas]");
       if (personas) {
         const campo = form.elements.personas;

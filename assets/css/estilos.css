@@ -1264,16 +1264,26 @@ html.con-teclado [data-foco]:focus { outline: 2px solid currentColor; outline-of
   .mezcla__despliegue, .mezcla--activa .mezcla__despliegue { transition: opacity 0.18s ease !important; }
 }
 
-/* Foto por línea: miniatura en celular y tablet; vista previa con fundido en computadora */
+/* Foto por línea: miniatura cuadrada en celular y tablet (la foto o Misifu con "Pronto su foto");
+   en computadora, vista previa con fundido en la foto grande de la izquierda */
 .fila__mini { display: none; }
-@media (max-width: 59.99rem) {
-  .fila.fila--con-foto { grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: 0 0.85rem; }
-  .fila__mini { display: block; width: 3.5rem; height: 3.5rem; object-fit: cover; object-position: center 60%; border-radius: 12px; background: var(--mesa); }
+@media (max-width: 59.99rem), (min-width: 60rem) and (hover: none) {
+  .fila.fila--con-foto { grid-template-columns: 4rem minmax(0, 1fr) auto; gap: 0 0.85rem; align-items: start; }
+  .fila__mini {
+    display: block; position: relative; width: 4rem; height: 4rem; padding: 0; border: 0;
+    border-radius: 12px; overflow: hidden; background: var(--mesa); color: inherit; font: inherit;
+  }
+  .fila__mini img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; }
+  .fila__mini .pronto__figura { width: 92%; margin-top: 6%; }
+  button.fila__mini {
+    cursor: pointer; touch-action: manipulation; user-select: none; -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent; transition: scale 0.15s var(--salida);
+  }
+  button.fila__mini:active { scale: 0.94; }
+  .fila--agotada .fila__mini img { filter: grayscale(0.55) brightness(0.92); }
 }
-@media (min-width: 60rem) and (hover: none) {
-  .fila.fila--con-foto { grid-template-columns: 3.5rem minmax(0, 1fr) auto; gap: 0 0.85rem; }
-  .fila__mini { display: block; width: 3.5rem; height: 3.5rem; object-fit: cover; border-radius: 12px; }
-}
+/* En el celular y la tablet, la carta va sin la foto grande arriba de cada categoría */
+@media (max-width: 59.99rem) { .grupo__portada { display: none; } }
 .pieza__capa {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 60%;
   opacity: 0; transition: opacity 0.35s ease; z-index: 1;
@@ -1426,21 +1436,6 @@ html.con-teclado [data-foco]:focus { outline: 2px solid currentColor; outline-of
 .horario { display: grid; gap: 0.7rem; }
 .horario[hidden] { display: none; }
 .horario__titulo { font-size: 0.875rem; font-weight: 500; }
-.horario__dias { display: flex; gap: 0.5rem; overflow-x: auto; scrollbar-width: none; margin: 0 -1.5rem; padding: 0.15rem 1.5rem; }
-.horario__dias::-webkit-scrollbar { display: none; }
-.horario__dia, .horario__hora {
-  border: 1px solid var(--linea); background: var(--papel); color: var(--tinta);
-  border-radius: var(--r-pastilla); font-size: 0.9375rem; font-variant-numeric: tabular-nums;
-  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-.horario__dia { flex: none; min-height: 2.75rem; padding: 0 1rem; }
-.horario__horas { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.4rem; }
-.horario__hora { min-height: 2.6rem; padding: 0 0.25rem; }
-@media (hover: hover) and (pointer: fine) { .horario__dia:hover, .horario__hora:hover { border-color: var(--tinta); } }
-.horario__dia[aria-pressed="true"], .horario__hora[aria-pressed="true"] { background: var(--tinta); color: var(--papel); border-color: var(--tinta); }
-.horario__hora--cerca { color: rgb(23 18 15 / 0.38); border-style: dashed; }
-@media (hover: hover) and (pointer: fine) { .horario__hora--cerca:hover { border-color: var(--linea); } }
-.aviso--hora[hidden] { display: none; }
 .aviso__accion { border: 0; background: none; padding: 0; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; cursor: pointer; }
 
 .pago { display: grid; gap: 0.75rem; }
@@ -1774,7 +1769,7 @@ button, [role="button"], .agregar, .categorias a, .pastilla, .segmentado label, 
 .todas__item { transition: background-color 0.2s, border-color 0.2s, color 0.2s, scale 0.15s var(--salida); }
 .pastilla span, .segmentado span { transition: background-color 0.2s, color 0.2s, border-color 0.2s, scale 0.15s var(--salida); }
 .paso button { transition: scale 0.15s var(--salida); }
-.boton-quitar, .horario__dia, .horario__hora { transition: background-color 0.2s, color 0.2s, border-color 0.2s, scale 0.15s var(--salida); }
+.boton-quitar { transition: background-color 0.2s, color 0.2s, border-color 0.2s, scale 0.15s var(--salida); }
 .calendario__dia { transition: background-color 0.15s, color 0.15s, scale 0.15s var(--salida); }
 .calendario__mes { transition: background-color 0.2s, color 0.2s, scale 0.15s var(--salida); }
 .filtro__boton { transition: background-color 0.2s, border-color 0.2s, scale 0.15s var(--salida); }
@@ -1786,7 +1781,7 @@ button, [role="button"], .agregar, .categorias a, .pastilla, .segmentado label, 
 .calendario__dia:not(:disabled):active, .promo-tarjeta__cerrar:active, .catalogo__cerrar:active { scale: 0.94; }
 .categorias a:active, .categorias__todas:active, .categorias__flecha:not(:disabled):active,
 .pastilla input:not(:disabled):active + span, .segmentado input:active + span,
-.boton-quitar:active, .horario__dia:not(:disabled):active, .horario__hora:not(:disabled):active, .filtro__boton:active { scale: 0.97; }
+.boton-quitar:active, .filtro__boton:active { scale: 0.97; }
 .todas__item:active, .barra-pedido:active { scale: 0.98; }
 
 /* ---------- Tu pedido: el detalle de cada línea usa todo el ancho, bajo el contador ---------- */
@@ -1886,3 +1881,105 @@ button, [role="button"], .agregar, .categorias a, .pastilla, .segmentado label, 
   .pastilla-estado { transition: opacity 180ms ease, visibility 0s linear 180ms, background-color 0.2s, color 0.2s; }
   .pastilla-estado.visible { transition: opacity 180ms ease, visibility 0s, background-color 0.2s, color 0.2s; }
 }
+
+/* =========================================================
+   Foto agrandada de la carta, calendario y rueda de la hora
+   ========================================================= */
+
+/* ---------- Foto agrandada: crece desde la miniatura; fondo desenfocado con fundido ---------- */
+.zoom {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0;
+  padding: max(1.25rem, env(safe-area-inset-top)) 1.25rem max(1.25rem, env(safe-area-inset-bottom));
+  border: 0; background: transparent; color: var(--tinta);
+  overflow: hidden; overflow: clip; touch-action: none; overscroll-behavior: contain;
+}
+.zoom[open] { display: grid; place-items: center; }
+.zoom::backdrop { background: transparent; }
+/* El desenfoque no se anima: la capa ya desenfocada entra y sale con opacidad */
+.zoom__fondo {
+  position: absolute; inset: 0; background: rgb(23 18 15 / 0.38);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  opacity: 0; transition: opacity var(--t-sale) ease;
+}
+.zoom.abierto .zoom__fondo { opacity: 1; transition: opacity var(--t-entra) ease; }
+.zoom__caja { position: relative; margin: 0; width: min(100%, 26rem, calc(100dvh - 10rem)); display: grid; gap: 0.75rem; }
+.zoom__foto {
+  position: relative; aspect-ratio: 1; border-radius: var(--r-foto); overflow: hidden; background: var(--mesa);
+  transform-origin: 0 0; box-shadow: 0 30px 60px -20px rgb(23 18 15 / 0.45);
+  transition: transform 500ms var(--entra);
+}
+.zoom__foto img { -webkit-touch-callout: none; display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 60%; pointer-events: none; -webkit-user-drag: none; }
+.zoom__cerrar {
+  position: absolute; top: 0.75rem; right: 0.75rem; z-index: 1;
+  width: 2.75rem; height: 2.75rem; border-radius: 50%; border: 0; background: var(--papel); color: var(--tinta);
+  display: grid; place-items: center; box-shadow: 0 4px 14px -6px rgb(0 0 0 / 0.35);
+  touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.zoom__cerrar svg { width: 1.15rem; height: 1.15rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; }
+.zoom__pie {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  padding: 0.8rem 1.1rem; border-radius: 14px; background: var(--papel);
+  box-shadow: 0 12px 30px -10px rgb(23 18 15 / 0.5);
+}
+.zoom__nombre { font-family: var(--display); font-weight: 500; font-size: 1.375rem; line-height: 1.2; min-width: 0; }
+.zoom__precio { font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* La X y el nombre aparecen cuando la foto ya llegó; al cerrar se van primero */
+.zoom__cerrar, .zoom__pie { opacity: 0; transition: opacity 120ms ease, scale 0.15s var(--salida), background-color 0.2s, color 0.2s; }
+.zoom.abierto .zoom__cerrar, .zoom.abierto .zoom__pie { opacity: 1; transition: opacity 220ms ease 220ms, scale 0.15s var(--salida), background-color 0.2s, color 0.2s; }
+.zoom__cerrar:active { scale: 0.94; }
+@media (hover: hover) and (pointer: fine) { .zoom__cerrar:hover { background: var(--tinta); color: var(--papel); } }
+.zoom__cerrar:focus-visible { outline: 2px solid var(--tinta); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .zoom__foto { transition: none; }
+  .zoom__caja { opacity: 0; transition: opacity 180ms ease; }
+  .zoom.abierto .zoom__caja { opacity: 1; }
+  .zoom__cerrar, .zoom__pie, .zoom.abierto .zoom__cerrar, .zoom.abierto .zoom__pie { transition: opacity 180ms ease; }
+}
+
+/* ---------- Día y hora del pedido: calendario fijo dentro de la hoja ---------- */
+.horario__nota[hidden] { display: none; }
+.horario__resumen { padding: 0.85rem 1rem; border-radius: 14px; background: var(--mesa); font-size: 0.9375rem; }
+.horario__resumen strong { font-weight: 600; }
+.horario__resumen--vacio { background: var(--chicha-claro); color: var(--chicha); font-weight: 500; }
+/* El mismo calendario de Eventos, pero quieto en su sitio: sin sombra (no flota) y con filete */
+.calendario.calendario--fijo {
+  position: static; z-index: auto; width: 100%;
+  border: 1px solid var(--linea); box-shadow: none;
+  opacity: 1; transform: none; transition: none;
+}
+.calendario--fijo .calendario__dia[aria-pressed="true"] { background: var(--chicha); color: var(--papel); }
+@media (hover: hover) and (pointer: fine) {
+  .calendario--fijo .calendario__dia[aria-pressed="true"]:hover { background: var(--chicha); color: var(--papel); }
+}
+
+/* ---------- Rueda de la hora (como la alarma del celular) ---------- */
+.horario .plegable { margin-top: -0.7rem; } /* cerrada no deja el hueco del gap */
+.horario .plegable--abierto { margin-top: 0; }
+.horario__pliegue .horario__titulo { margin-top: 0.15rem; }
+.rueda {
+  --alto: 2.75rem;
+  position: relative; display: flex; justify-content: center; align-items: center; gap: 0.15rem;
+  width: 100%; height: calc(var(--alto) * 5); margin-top: 0.35rem;
+  user-select: none; -webkit-user-select: none;
+}
+.rueda__banda { position: absolute; left: 0; right: 0; top: calc(var(--alto) * 2); height: var(--alto); border-radius: 14px; background: var(--mesa); pointer-events: none; }
+.rueda__col {
+  position: relative; width: 4.5rem; height: 100%;
+  overflow-y: auto; scroll-snap-type: y mandatory; overscroll-behavior: contain; scrollbar-width: none;
+  touch-action: pan-y; perspective: 32rem; border-radius: 14px; outline: none;
+  -webkit-mask-image: linear-gradient(transparent, #000 34%, #000 66%, transparent);
+  mask-image: linear-gradient(transparent, #000 34%, #000 66%, transparent);
+}
+.rueda__col::-webkit-scrollbar { display: none; }
+.rueda__col:focus-visible { box-shadow: inset 0 0 0 2px var(--tinta); -webkit-mask-image: none; mask-image: none; }
+.rueda__col ul { list-style: none; margin: 0; padding: calc(var(--alto) * 2) 0; }
+.rueda__col li {
+  height: var(--alto); display: grid; place-items: center; scroll-snap-align: center;
+  font-size: 1.375rem; font-weight: 500; font-variant-numeric: tabular-nums; cursor: pointer;
+  backface-visibility: hidden;
+}
+.rueda__col li.rueda__no { color: rgb(23 18 15 / 0.28); }
+.rueda__sep { position: relative; width: 0.6rem; text-align: center; font-size: 1.375rem; font-weight: 500; }
+.rueda__ampm { position: relative; width: 3rem; padding-left: 0.4rem; font-size: 1.0625rem; font-weight: 500; color: var(--tinta-suave); }
+.rueda__nota { margin-top: 0.35rem; text-align: center; font-size: 0.8125rem; color: var(--tinta-suave); }
+@media (prefers-reduced-motion: reduce) { .rueda__col li { transform: none !important; } }

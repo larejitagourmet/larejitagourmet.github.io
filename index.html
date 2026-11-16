@@ -421,6 +421,16 @@
     </div>
   </dialog>
 
+  <dialog class="zoom" data-zoom-dialogo aria-labelledby="zoom-nombre">
+    <div class="zoom__fondo" data-zoom-cerrar></div>
+    <figure class="zoom__caja" data-zoom-caja>
+      <div class="zoom__foto" data-zoom-foto>
+        <button type="button" class="zoom__cerrar" data-zoom-cerrar aria-label="Cerrar foto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+      </div>
+      <figcaption class="zoom__pie"><span class="zoom__nombre" id="zoom-nombre" data-zoom-nombre></span><span class="zoom__precio" data-zoom-precio></span></figcaption>
+    </figure>
+  </dialog>
+
   <div class="todas__fondo" data-todas-fondo hidden></div>
   <div class="todas" id="panel-categorias" data-todas role="dialog" aria-labelledby="todas-titulo" hidden>
     <div class="todas__cabeza">
